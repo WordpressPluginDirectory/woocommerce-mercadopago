@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit6907e9ab25b5fd934eb0c588bfeaabae
+class ComposerStaticInitc0867a98155e7e086bc6ebf2839f9295
 {
     public static $prefixLengthsPsr4 = array (
         'M' => 
@@ -27,6 +27,9 @@ class ComposerStaticInit6907e9ab25b5fd934eb0c588bfeaabae
         'MercadoPago\\PP\\Sdk\\Common\\Config' => __DIR__ . '/../..' . '/src/Common/Config.php',
         'MercadoPago\\PP\\Sdk\\Common\\Constants' => __DIR__ . '/../..' . '/src/Common/Constants.php',
         'MercadoPago\\PP\\Sdk\\Common\\Manager' => __DIR__ . '/../..' . '/src/Common/Manager.php',
+        'MercadoPago\\PP\\Sdk\\Entity\\Monitoring\\MelidataError' => __DIR__ . '/../..' . '/src/Entity/Monitoring/MelidataError.php',
+        'MercadoPago\\PP\\Sdk\\Entity\\Monitoring\\Platform' => __DIR__ . '/../..' . '/src/Entity/Monitoring/Platform.php',
+        'MercadoPago\\PP\\Sdk\\Entity\\Monitoring\\Plugin' => __DIR__ . '/../..' . '/src/Entity/Monitoring/Plugin.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Notification\\Notification' => __DIR__ . '/../..' . '/src/Entity/Notification/Notification.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Notification\\PaymentDetails' => __DIR__ . '/../..' . '/src/Entity/Notification/PaymentDetails.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Notification\\PaymentDetailsList' => __DIR__ . '/../..' . '/src/Entity/Notification/PaymentDetailsList.php',
@@ -94,9 +97,9 @@ class ComposerStaticInit6907e9ab25b5fd934eb0c588bfeaabae
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit6907e9ab25b5fd934eb0c588bfeaabae::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit6907e9ab25b5fd934eb0c588bfeaabae::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit6907e9ab25b5fd934eb0c588bfeaabae::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitc0867a98155e7e086bc6ebf2839f9295::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitc0867a98155e7e086bc6ebf2839f9295::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitc0867a98155e7e086bc6ebf2839f9295::$classMap;
 
         }, null, ClassLoader::class);
     }

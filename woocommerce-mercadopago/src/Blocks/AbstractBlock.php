@@ -225,15 +225,11 @@ abstract class AbstractBlock extends AbstractPaymentMethodType implements Mercad
     public function registerDiscountAndCommissionFeesOnCart()
     {
         // Avoid to add fees before WooCommerce Blocks load
-        if ($this->mercadopago->hooks->checkout->isCheckout()) {
+        if ($this->mercadopago->hooks->checkout->isCheckout() || $this->mercadopago->hooks->cart->isCart()) {
             return;
         }
 
         if (isset($this->gateway)) {
-            if ($this->mercadopago->hooks->cart->isCart()) {
-                $this->mercadopago->helpers->cart->removeDiscountAndCommissionOnFeesFromBlocks($this->gateway);
-            }
-
             $action  = $this->mercadopago->helpers->session->getSession(self::ACTION_SESSION_KEY);
 
             if ($action == 'add') {
