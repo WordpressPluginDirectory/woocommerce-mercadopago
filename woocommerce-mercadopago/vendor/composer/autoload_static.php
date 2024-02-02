@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitf5bff2b92db8f73bc21f6620c48096bd
+class ComposerStaticInit6bad23aaed114566b8888d8aa0a2fb07
 {
     public static $prefixLengthsPsr4 = array (
         'M' => 
@@ -29,6 +29,7 @@ class ComposerStaticInitf5bff2b92db8f73bc21f6620c48096bd
         'MercadoPago\\Woocommerce\\Blocks\\CreditsBlock' => __DIR__ . '/../..' . '/src/Blocks/CreditsBlock.php',
         'MercadoPago\\Woocommerce\\Blocks\\CustomBlock' => __DIR__ . '/../..' . '/src/Blocks/CustomBlock.php',
         'MercadoPago\\Woocommerce\\Blocks\\PixBlock' => __DIR__ . '/../..' . '/src/Blocks/PixBlock.php',
+        'MercadoPago\\Woocommerce\\Blocks\\PseBlock' => __DIR__ . '/../..' . '/src/Blocks/PseBlock.php',
         'MercadoPago\\Woocommerce\\Blocks\\TicketBlock' => __DIR__ . '/../..' . '/src/Blocks/TicketBlock.php',
         'MercadoPago\\Woocommerce\\Configs\\Metadata' => __DIR__ . '/../..' . '/src/Configs/Metadata.php',
         'MercadoPago\\Woocommerce\\Configs\\Seller' => __DIR__ . '/../..' . '/src/Configs/Seller.php',
@@ -39,11 +40,15 @@ class ComposerStaticInitf5bff2b92db8f73bc21f6620c48096bd
         'MercadoPago\\Woocommerce\\Entities\\Metadata\\PaymentMetadataAddress' => __DIR__ . '/../..' . '/src/Entities/Metadata/PaymentMetadataAddress.php',
         'MercadoPago\\Woocommerce\\Entities\\Metadata\\PaymentMetadataCpp' => __DIR__ . '/../..' . '/src/Entities/Metadata/PaymentMetadataCpp.php',
         'MercadoPago\\Woocommerce\\Entities\\Metadata\\PaymentMetadataUser' => __DIR__ . '/../..' . '/src/Entities/Metadata/PaymentMetadataUser.php',
+        'MercadoPago\\Woocommerce\\Exceptions\\InvalidCheckoutDataException' => __DIR__ . '/../..' . '/src/Exceptions/InvalidCheckoutDataException.php',
+        'MercadoPago\\Woocommerce\\Exceptions\\RejectedPaymentException' => __DIR__ . '/../..' . '/src/Exceptions/RejectedPaymentException.php',
+        'MercadoPago\\Woocommerce\\Exceptions\\ResponseStatusException' => __DIR__ . '/../..' . '/src/Exceptions/ResponseStatusException.php',
         'MercadoPago\\Woocommerce\\Gateways\\AbstractGateway' => __DIR__ . '/../..' . '/src/Gateways/AbstractGateway.php',
         'MercadoPago\\Woocommerce\\Gateways\\BasicGateway' => __DIR__ . '/../..' . '/src/Gateways/BasicGateway.php',
         'MercadoPago\\Woocommerce\\Gateways\\CreditsGateway' => __DIR__ . '/../..' . '/src/Gateways/CreditsGateway.php',
         'MercadoPago\\Woocommerce\\Gateways\\CustomGateway' => __DIR__ . '/../..' . '/src/Gateways/CustomGateway.php',
         'MercadoPago\\Woocommerce\\Gateways\\PixGateway' => __DIR__ . '/../..' . '/src/Gateways/PixGateway.php',
+        'MercadoPago\\Woocommerce\\Gateways\\PseGateway' => __DIR__ . '/../..' . '/src/Gateways/PseGateway.php',
         'MercadoPago\\Woocommerce\\Gateways\\TicketGateway' => __DIR__ . '/../..' . '/src/Gateways/TicketGateway.php',
         'MercadoPago\\Woocommerce\\Helpers' => __DIR__ . '/../..' . '/src/Helpers.php',
         'MercadoPago\\Woocommerce\\Helpers\\Actions' => __DIR__ . '/../..' . '/src/Helpers/Actions.php',
@@ -108,6 +113,7 @@ class ComposerStaticInitf5bff2b92db8f73bc21f6620c48096bd
         'MercadoPago\\Woocommerce\\Transactions\\CreditsTransaction' => __DIR__ . '/../..' . '/src/Transactions/CreditsTransaction.php',
         'MercadoPago\\Woocommerce\\Transactions\\CustomTransaction' => __DIR__ . '/../..' . '/src/Transactions/CustomTransaction.php',
         'MercadoPago\\Woocommerce\\Transactions\\PixTransaction' => __DIR__ . '/../..' . '/src/Transactions/PixTransaction.php',
+        'MercadoPago\\Woocommerce\\Transactions\\PseTransaction' => __DIR__ . '/../..' . '/src/Transactions/PseTransaction.php',
         'MercadoPago\\Woocommerce\\Transactions\\TicketTransaction' => __DIR__ . '/../..' . '/src/Transactions/TicketTransaction.php',
         'MercadoPago\\Woocommerce\\Transactions\\WalletButtonTransaction' => __DIR__ . '/../..' . '/src/Transactions/WalletButtonTransaction.php',
         'MercadoPago\\Woocommerce\\Translations\\AdminTranslations' => __DIR__ . '/../..' . '/src/Translations/AdminTranslations.php',
@@ -118,9 +124,9 @@ class ComposerStaticInitf5bff2b92db8f73bc21f6620c48096bd
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitf5bff2b92db8f73bc21f6620c48096bd::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitf5bff2b92db8f73bc21f6620c48096bd::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitf5bff2b92db8f73bc21f6620c48096bd::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit6bad23aaed114566b8888d8aa0a2fb07::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit6bad23aaed114566b8888d8aa0a2fb07::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit6bad23aaed114566b8888d8aa0a2fb07::$classMap;
 
         }, null, ClassLoader::class);
     }
