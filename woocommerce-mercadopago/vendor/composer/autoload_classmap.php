@@ -73,6 +73,8 @@ return array(
     'MercadoPago\\Woocommerce\\Hooks\\Product' => $baseDir . '/src/Hooks/Product.php',
     'MercadoPago\\Woocommerce\\Hooks\\Scripts' => $baseDir . '/src/Hooks/Scripts.php',
     'MercadoPago\\Woocommerce\\Hooks\\Template' => $baseDir . '/src/Hooks/Template.php',
+    'MercadoPago\\Woocommerce\\IO\\Downloader' => $baseDir . '/src/IO/Downloader.php',
+    'MercadoPago\\Woocommerce\\IO\\LogFile' => $baseDir . '/src/IO/LogFile.php',
     'MercadoPago\\Woocommerce\\Interfaces\\LogInterface' => $baseDir . '/src/Interfaces/LogInterface.php',
     'MercadoPago\\Woocommerce\\Interfaces\\MercadoPagoGatewayInterface' => $baseDir . '/src/Interfaces/MercadoPagoGatewayInterface.php',
     'MercadoPago\\Woocommerce\\Interfaces\\MercadoPagoPaymentBlockInterface' => $baseDir . '/src/Interfaces/MercadoPagoPaymentBlockInterface.php',

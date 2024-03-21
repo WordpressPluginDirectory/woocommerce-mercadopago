@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit9f4fbd40d285907cc278c858e910d5af
+class ComposerStaticInita92f5419910079db164215ba3ad99154
 {
     public static $prefixLengthsPsr4 = array (
         'M' => 
@@ -88,6 +88,8 @@ class ComposerStaticInit9f4fbd40d285907cc278c858e910d5af
         'MercadoPago\\Woocommerce\\Hooks\\Product' => __DIR__ . '/../..' . '/src/Hooks/Product.php',
         'MercadoPago\\Woocommerce\\Hooks\\Scripts' => __DIR__ . '/../..' . '/src/Hooks/Scripts.php',
         'MercadoPago\\Woocommerce\\Hooks\\Template' => __DIR__ . '/../..' . '/src/Hooks/Template.php',
+        'MercadoPago\\Woocommerce\\IO\\Downloader' => __DIR__ . '/../..' . '/src/IO/Downloader.php',
+        'MercadoPago\\Woocommerce\\IO\\LogFile' => __DIR__ . '/../..' . '/src/IO/LogFile.php',
         'MercadoPago\\Woocommerce\\Interfaces\\LogInterface' => __DIR__ . '/../..' . '/src/Interfaces/LogInterface.php',
         'MercadoPago\\Woocommerce\\Interfaces\\MercadoPagoGatewayInterface' => __DIR__ . '/../..' . '/src/Interfaces/MercadoPagoGatewayInterface.php',
         'MercadoPago\\Woocommerce\\Interfaces\\MercadoPagoPaymentBlockInterface' => __DIR__ . '/../..' . '/src/Interfaces/MercadoPagoPaymentBlockInterface.php',
@@ -124,9 +126,9 @@ class ComposerStaticInit9f4fbd40d285907cc278c858e910d5af
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit9f4fbd40d285907cc278c858e910d5af::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit9f4fbd40d285907cc278c858e910d5af::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit9f4fbd40d285907cc278c858e910d5af::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInita92f5419910079db164215ba3ad99154::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInita92f5419910079db164215ba3ad99154::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInita92f5419910079db164215ba3ad99154::$classMap;
 
         }, null, ClassLoader::class);
     }
