@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'mp-plugins/php-sdk',
-        'pretty_version' => '1.12.0',
-        'version' => '1.12.0.0',
-        'reference' => NULL,
+        'pretty_version' => '1.4.0',
+        'version' => '1.4.0.0',
+        'reference' => null,
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'mp-plugins/php-sdk' => array(
-            'pretty_version' => '1.12.0',
-            'version' => '1.12.0.0',
-            'reference' => NULL,
+            'pretty_version' => '1.4.0',
+            'version' => '1.4.0.0',
+            'reference' => null,
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

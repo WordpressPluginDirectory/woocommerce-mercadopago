@@ -2,19 +2,12 @@
 
 namespace MercadoPago\PP\Sdk\Entity\Payment;
 
-use Exception;
 use MercadoPago\PP\Sdk\Common\AbstractEntity;
-use MercadoPago\PP\Sdk\Common\Constants;
 use MercadoPago\PP\Sdk\Common\Manager;
 use MercadoPago\PP\Sdk\Interfaces\RequesterEntityInterface;
 
 /**
- * Handles integration with the Asgard Transaction service.
- *
- * The Asgard Transaction acts as a middleware for creating various transaction-related entities
- * such as Payments, Preferences, Point, and Transaction Intent. It orchestrates all actions
- * taken during a payment transaction. Its main responsibility is to ensure a secure intermediation
- * between P&P and MercadoPago during payment creation.
+ * Class Payment
  *
  * @property string $date_of_expiration
  * @property string $operation_type
@@ -50,7 +43,6 @@ use MercadoPago\PP\Sdk\Interfaces\RequesterEntityInterface;
  * @property string $coupon_code
  * @property string $token
  * @property string $session_id
- * @property array $customHeader
  * @property string $three_d_secure_mode
  *
  * @package MercadoPago\PP\Sdk\Entity\Payment
@@ -232,11 +224,6 @@ class Payment extends AbstractEntity implements RequesterEntityInterface
      */
     protected $session_id;
 
-     /**
-     * @var array
-     */
-    private $customHeader;
-
     /**
      * Payment constructor.
      *
@@ -270,20 +257,10 @@ class Payment extends AbstractEntity implements RequesterEntityInterface
     {
         return [
             'read' => [],
-            'save' => isset($this->customHeader)
-                        ? array_merge(['x-meli-session-id: ' . $this->session_id], $this->customHeader)
-                        : ['x-meli-session-id: ' . $this->session_id],
+            'save' => ['x-meli-session-id: ' . $this->session_id],
         ];
     }
-    /**
-     * Set custom headers for entity.
-     *
-     * @return array
-     */
-    public function setCustomHeaders(array $customHeader = [])
-    {
-        return $this->customHeader = $customHeader;
-    }
+
     /**
      * Get uris.
      *
@@ -294,45 +271,5 @@ class Payment extends AbstractEntity implements RequesterEntityInterface
         return array(
             'post' => '/v1/asgard/payments',
         );
-    }
-
-    /**
-     *  Addition of the 3DS validation layer. Possible values are as follows:
-     * - not_supported: 3DS should not be used (it is the default value).
-     * - optional: 3DS may or may not be required, depending on the risk profile of the operation.
-     * - mandatory: 3DS must be required, depending on the risk profile of the operation.
-     */
-
-    public function validateThreeDSecureMode()
-    {
-
-        $validation = Constants::THREE_DS_VALID_OPTIONS;
-        if (in_array(strtolower($this->three_d_secure_mode), $validation)) {
-            return $this->save();
-        }
-
-        throw new Exception("Invalid value for field three_d_secure_mode");
-    }
-
-    /**
-     * Creates a payment using the Asgard Transaction service API.
-     *
-     * To execute this method, it is essential to provide the payment request payload. The payload includes
-     * properties such as 'paymentMethodId', 'description', 'transactionAmount', among others.
-     * The method returns details of the created payment, including fields like 'id', 'status',
-     * 'applicationId', 'dateCreated', etc.
-     *
-     * Internally, this method makes a call to the Asgard Transaction API, supplying the required parameters:
-     * Payment creation payload, Platform Identifier, and Access Token.
-     *
-     * Note: This method is inherited from the parent class but specialized for payments.
-     *
-     * @return mixed The result of the save operation, typically an instance of this Payment
-     * class populated with the created data.
-     * @throws \Exception Throws an exception if something goes wrong during the save operation.
-     */
-    public function save()
-    {
-        return parent::save();
     }
 }

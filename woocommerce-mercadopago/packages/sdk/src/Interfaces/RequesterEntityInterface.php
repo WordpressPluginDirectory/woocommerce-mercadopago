@@ -35,14 +35,4 @@ interface RequesterEntityInterface
      * @throws \Exception
      */
     public function save();
-
-    /**
-     * Save method with params (POST).
-     *
-     * @param array $params
-     *
-     * @return mixed
-     * @throws \Exception
-     */
-    public function saveWithParams(array $params = []);
 }
