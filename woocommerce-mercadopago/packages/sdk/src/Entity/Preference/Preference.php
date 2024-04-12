@@ -8,7 +8,12 @@ use MercadoPago\PP\Sdk\Interfaces\RequesterEntityInterface;
 use MercadoPago\PP\Sdk\Entity\Payment\AdditionalInfo;
 
 /**
- * Class Preference
+ * Handles integration with the Asgard Transaction service.
+ *
+ * The Asgard Transaction acts as a middleware for creating various transaction-related entities
+ * such as Payments, Preferences, Point, and Transaction Intent. It orchestrates all actions
+ * taken during a payment transaction. Its main responsibility is to ensure a secure intermediation
+ * between P&P and MercadoPago during payment creation.
  *
  * @property AdditionalInfo $additional_info
  * @property string $auto_return
@@ -196,6 +201,59 @@ class Preference extends AbstractEntity implements RequesterEntityInterface
     {
         return array(
             'post' => '/v1/asgard/preferences',
+            'get' => '/checkout/preferences/:id'
         );
+    }
+
+    /**
+     * Creates a preference for Checkout Pro via the asgard-transaction service.
+     *
+     * This method is used to set the preferences for a checkout before redirecting the user to
+     * the MercadoPago payment interface. To make the call to the asgard-transaction, this method
+     * requires the request payload for a preference, which includes details such as:
+     * 'additionalInfo', 'autoReturn', 'binaryMode', 'expirationDateFrom', 'expirationDateTo', 'items'.
+     *
+     * Once the preference is successfully created, the method returns an object that encapsulates
+     * all the details of the created preference, including: 'id', 'dateCreated', 'items', 'totalAmount'.
+     *
+     * In addition to these properties, the returned object contains other fields that provide
+     * additional information about the preference, such as: 'expirationDateFrom', 'notificationUrl', among others.
+     *
+     * Note: This method is inherited from the parent class but specialized for preferences.
+     *
+     * @return mixed The result of the preference creation, typically an instance of a Preference class
+     *                populated with the created details.
+     *
+     * @throws \Exception Throws an exception if something goes wrong during the preference creation.
+     */
+    public function save()
+    {
+        return parent::save();
+    }
+
+    /**
+     * Retrieves a Preference from the Checkout/Preferences API.
+     *
+     * Upon invoking this method, a request is made to the Preferences API
+     * using the provided preference ID. Authentication is performed using
+     * the seller's access token, which should be previously configured in the default headers.
+     *
+     * Note: This method is inherited from the parent class but specialized for Preferences
+     *
+     * @param array $params Associative array containing the parameters for the read operation.
+     *                      It expects an "id" key with the Preference ID as its value.
+     *                      Example: $preference->read(['id' => '1093365129-96510955-ab0f-4dda-b1c1-40fcd1c3768d'])
+     *
+     * @return mixed The result of the read operation, typically an instance of
+     *               this Preference class populated with the retrieved data.
+     *
+     * @throws \Exception Throws an exception if something goes wrong during the read operation.
+     */
+    public function read(
+        array $params = [],
+        array $queryStrings = [],
+        bool $shouldTheExpectedResponseBeMappedOntoTheEntity = true
+    ) {
+        return parent::read($params, $queryStrings, true);
     }
 }
