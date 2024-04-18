@@ -13,7 +13,6 @@ class PaymentV2 extends Payment
     {
         return array(
             'post' => '/v2/asgard/payments',
-            'get' => '/v1/payments/:id'
         );
     }
 }

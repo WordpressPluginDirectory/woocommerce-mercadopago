@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitfc6b462a8e113f75ceb2d312a36e0297
+class ComposerStaticInit41a7bb83c37c0bbaf97ece34ca688cb5
 {
     public static $prefixLengthsPsr4 = array (
         'M' => 
@@ -27,11 +27,6 @@ class ComposerStaticInitfc6b462a8e113f75ceb2d312a36e0297
         'MercadoPago\\PP\\Sdk\\Common\\Config' => __DIR__ . '/../..' . '/src/Common/Config.php',
         'MercadoPago\\PP\\Sdk\\Common\\Constants' => __DIR__ . '/../..' . '/src/Common/Constants.php',
         'MercadoPago\\PP\\Sdk\\Common\\Manager' => __DIR__ . '/../..' . '/src/Common/Manager.php',
-        'MercadoPago\\PP\\Sdk\\Entity\\Identification\\CreateSellerFunnelBase' => __DIR__ . '/../..' . '/src/Entity/Identification/CreateSellerFunnelBase.php',
-        'MercadoPago\\PP\\Sdk\\Entity\\Identification\\ResponseCreateSellerFunnelBase' => __DIR__ . '/../..' . '/src/Entity/Identification/ResponseCreateSellerFunnelBase.php',
-        'MercadoPago\\PP\\Sdk\\Entity\\Identification\\UpdateSellerFunnelBase' => __DIR__ . '/../..' . '/src/Entity/Identification/UpdateSellerFunnelBase.php',
-        'MercadoPago\\PP\\Sdk\\Entity\\MerchantOrder\\Collector' => __DIR__ . '/../..' . '/src/Entity/MerchantOrder/Collector.php',
-        'MercadoPago\\PP\\Sdk\\Entity\\MerchantOrder\\MerchantOrder' => __DIR__ . '/../..' . '/src/Entity/MerchantOrder/MerchantOrder.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Monitoring\\DatadogEvent' => __DIR__ . '/../..' . '/src/Entity/Monitoring/DatadogEvent.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Monitoring\\Platform' => __DIR__ . '/../..' . '/src/Entity/Monitoring/Platform.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Monitoring\\RegisterErrorLog' => __DIR__ . '/../..' . '/src/Entity/Monitoring/RegisterErrorLog.php',
@@ -43,11 +38,6 @@ class ComposerStaticInitfc6b462a8e113f75ceb2d312a36e0297
         'MercadoPago\\PP\\Sdk\\Entity\\Notification\\RefundList' => __DIR__ . '/../..' . '/src/Entity/Notification/RefundList.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Notification\\RefundNotifying' => __DIR__ . '/../..' . '/src/Entity/Notification/RefundNotifying.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Notification\\RefundNotifyingList' => __DIR__ . '/../..' . '/src/Entity/Notification/RefundNotifyingList.php',
-        'MercadoPago\\PP\\Sdk\\Entity\\PaymentMethods\\FinancialInstitution' => __DIR__ . '/../..' . '/src/Entity/PaymentMethods/FinancialInstitution.php',
-        'MercadoPago\\PP\\Sdk\\Entity\\PaymentMethods\\FinancialInstitutionList' => __DIR__ . '/../..' . '/src/Entity/PaymentMethods/FinancialInstitutionList.php',
-        'MercadoPago\\PP\\Sdk\\Entity\\PaymentMethods\\PaymentMethod' => __DIR__ . '/../..' . '/src/Entity/PaymentMethods/PaymentMethod.php',
-        'MercadoPago\\PP\\Sdk\\Entity\\PaymentMethods\\PaymentMethods' => __DIR__ . '/../..' . '/src/Entity/PaymentMethods/PaymentMethods.php',
-        'MercadoPago\\PP\\Sdk\\Entity\\PaymentMethods\\PaymentMethodsList' => __DIR__ . '/../..' . '/src/Entity/PaymentMethods/PaymentMethodsList.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Payment\\AdditionalInfo' => __DIR__ . '/../..' . '/src/Entity/Payment/AdditionalInfo.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Payment\\AdditionalInfoAddress' => __DIR__ . '/../..' . '/src/Entity/Payment/AdditionalInfoAddress.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Payment\\AdditionalInfoPayer' => __DIR__ . '/../..' . '/src/Entity/Payment/AdditionalInfoPayer.php',
@@ -107,9 +97,9 @@ class ComposerStaticInitfc6b462a8e113f75ceb2d312a36e0297
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitfc6b462a8e113f75ceb2d312a36e0297::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitfc6b462a8e113f75ceb2d312a36e0297::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitfc6b462a8e113f75ceb2d312a36e0297::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit41a7bb83c37c0bbaf97ece34ca688cb5::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit41a7bb83c37c0bbaf97ece34ca688cb5::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit41a7bb83c37c0bbaf97ece34ca688cb5::$classMap;
 
         }, null, ClassLoader::class);
     }

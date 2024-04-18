@@ -243,6 +243,10 @@ abstract class AbstractGateway extends \WC_Payment_Gateway implements MercadoPag
         if ($this->canAdminLoadScriptsAndStyles($gatewaySection)) {
             $this->registerAdminScripts();
         }
+
+        if ($this->canCheckoutLoadScriptsAndStyles()) {
+            $this->registerCheckoutScripts();
+        }
     }
 
     /**
@@ -381,6 +385,18 @@ abstract class AbstractGateway extends \WC_Payment_Gateway implements MercadoPag
     }
 
     /**
+     * Check if admin scripts and styles can be loaded
+     *
+     * @return bool
+     */
+    public function canCheckoutLoadScriptsAndStyles(): bool
+    {
+        return $this->mercadopago->hooks->checkout->isCheckout() &&
+            $this->mercadopago->hooks->gateway->isEnabled($this) &&
+            !$this->mercadopago->helpers->url->validateQueryVar('order-received');
+    }
+
+    /**
      * Load research component
      *
      * @return void
@@ -446,14 +462,14 @@ abstract class AbstractGateway extends \WC_Payment_Gateway implements MercadoPag
      */
     public function processReturnFail(\Exception $e, string $message, string $source, array $context = [], bool $notice = false): array
     {
-        $this->mercadopago->logs->file->error($e->getMessage(), $source, $context);
+        $this->mercadopago->logs->file->error('Message: ' . $e->getMessage() . ' \n\n\n' . 'Stackstrace: ' . $e->getTraceAsString() . ' \n\n\n', $source, $context);
 
         $errorMessages = [
             "Invalid test user email" => $this->mercadopago->storeTranslations->commonMessages['invalid_users'],
             "Invalid users involved" => $this->mercadopago->storeTranslations->commonMessages['invalid_users'],
             "Invalid operators users involved" => $this->mercadopago->storeTranslations->commonMessages['invalid_operators'],
             "exception" => $this->mercadopago->storeTranslations->buyerRefusedMessages['buyer_default'],
-            "400" => $this->mercadopago->storeTranslations->commonMessages['buyer_default'],
+            "400" => $this->mercadopago->storeTranslations->buyerRefusedMessages['buyer_default'],
         ];
 
         foreach ($errorMessages as $keyword => $replacement) {

@@ -6,8 +6,6 @@ use MercadoPago\PP\Sdk\Common\AbstractEntity;
 use MercadoPago\PP\Sdk\Common\Config;
 use MercadoPago\PP\Sdk\Common\Constants;
 use MercadoPago\PP\Sdk\Common\Manager;
-use MercadoPago\PP\Sdk\Entity\Identification\CreateSellerFunnelBase;
-use MercadoPago\PP\Sdk\Entity\Identification\UpdateSellerFunnelBase;
 use MercadoPago\PP\Sdk\Entity\Monitoring\DatadogEvent;
 use MercadoPago\PP\Sdk\Entity\Notification\Notification;
 use MercadoPago\PP\Sdk\Entity\Payment\Multipayment;
@@ -17,8 +15,6 @@ use MercadoPago\PP\Sdk\Entity\Payment\Payment;
 use MercadoPago\PP\Sdk\Entity\Payment\PaymentV2;
 use MercadoPago\PP\Sdk\Entity\Payment\PaymentV21;
 use MercadoPago\PP\Sdk\Entity\Preference\Preference;
-use MercadoPago\PP\Sdk\Entity\PaymentMethods\PaymentMethods;
-use MercadoPago\PP\Sdk\Entity\MerchantOrder\MerchantOrder;
 use MercadoPago\PP\Sdk\HttpClient\HttpClient;
 use MercadoPago\PP\Sdk\HttpClient\Requester\CurlRequester;
 use MercadoPago\PP\Sdk\HttpClient\Requester\RequesterInterface;
@@ -47,14 +43,12 @@ class Sdk
      * @param String $platform_id
      * @param String $product_id
      * @param String $integrator_id
-     * @param String $public_key
      */
     public function __construct(
         string $access_token,
         string $platform_id,
         string $product_id,
-        string $integrator_id,
-        string $public_key
+        string $integrator_id
     ) {
         $this->requester = new CurlRequester();
         $this->config = new Config();
@@ -62,7 +56,6 @@ class Sdk
         $this->config->__set('platform_id', $platform_id);
         $this->config->__set('product_id', $product_id);
         $this->config->__set('integrator_id', $integrator_id);
-        $this->config->__set('public_key', $public_key);
     }
 
     /**
@@ -156,49 +149,5 @@ class Sdk
     public function getRegisterErrorLogInstance()
     {
         return $this->getEntityInstance('MercadoPago\PP\Sdk\Entity\Monitoring\RegisterErrorLog', Constants::BASEURL_MP);
-    }
-
-    /**
-     * @return PaymentMethods
-    */
-    public function getPaymentMethodsInstance()
-    {
-        return $this->getEntityInstance(
-            'MercadoPago\PP\Sdk\Entity\PaymentMethods\PaymentMethods',
-            Constants::BASEURL_MP
-        );
-    }
-
-    /**
-     * @return MerchantOrder
-    */
-    public function getMerchantOrderInstance()
-    {
-        return $this->getEntityInstance(
-            'MercadoPago\PP\Sdk\Entity\MerchantOrder\MerchantOrder',
-            Constants::BASEURL_MP
-        );
-    }
-
-    /**
-     * @return CreateSellerFunnelBase
-     */
-    public function getCreateSellerFunnelBaseInstance()
-    {
-        return $this->getEntityInstance(
-            'MercadoPago\PP\Sdk\Entity\Identification\CreateSellerFunnelBase',
-            Constants::BASEURL_MP
-        );
-    }
-
-    /**
-     * @return UpdateSellerFunnelBase
-     */
-    public function getUpdateSellerFunnelBaseInstance()
-    {
-        return $this->getEntityInstance(
-            'MercadoPago\PP\Sdk\Entity\Identification\UpdateSellerFunnelBase',
-            Constants::BASEURL_MP
-        );
     }
 }

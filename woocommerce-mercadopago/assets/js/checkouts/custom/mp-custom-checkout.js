@@ -363,7 +363,9 @@ jQuery('body').on('payment_method_selected', function () {
 });
 
 jQuery('form#order_review').submit(function (event) {
-  if (document.getElementById('payment_method_woo-mercado-pago-custom').checked) {
+  const selectPaymentMethod = document.getElementById('payment_method_woo-mercado-pago-custom');
+
+  if (selectPaymentMethod && selectPaymentMethod.checked) {
     event.preventDefault();
     return mercadoPagoFormHandler();
   } else {
@@ -380,7 +382,7 @@ jQuery(document).on('updated_checkout', function () {
   const checkoutCustomPaymentMethodElement = document.getElementById('payment_method_woo-mercado-pago-custom');
 
   // Checkout Custom is not selected, so we can stop checking
-  if (checkoutCustomPaymentMethodElement || checkoutCustomPaymentMethodElement.checked) {
+  if (checkoutCustomPaymentMethodElement && checkoutCustomPaymentMethodElement.checked) {
     if (cardFormMounted) {
       cardForm.unmount();
     }

@@ -29,11 +29,6 @@ class Config
      */
     private $integrator_id;
 
-        /**
-     * @var string
-     */
-    private $public_key;
-
     /**
      * Config constructor.
      *
@@ -41,20 +36,17 @@ class Config
      * @param string|null $platform_id
      * @param string|null $product_id
      * @param string|null $integrator_id
-     * @param string|null $public_key
      */
     public function __construct(
         string $access_token = null,
         string $platform_id = null,
         string $product_id = null,
-        string $integrator_id = null,
-        string $public_key = null
+        string $integrator_id = null
     ) {
         $this->access_token = $access_token;
         $this->platform_id = $platform_id;
         $this->product_id = $product_id;
         $this->integrator_id = $integrator_id;
-        $this->public_key = $public_key;
     }
 
     /**
