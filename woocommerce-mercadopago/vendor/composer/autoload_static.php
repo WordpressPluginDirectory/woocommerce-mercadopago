@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit09743eb1e8ec07bd84f39fa5874cdeb7
+class ComposerStaticInit9f4fbd40d285907cc278c858e910d5af
 {
     public static $prefixLengthsPsr4 = array (
         'M' => 
@@ -43,6 +43,7 @@ class ComposerStaticInit09743eb1e8ec07bd84f39fa5874cdeb7
         'MercadoPago\\Woocommerce\\Exceptions\\InvalidCheckoutDataException' => __DIR__ . '/../..' . '/src/Exceptions/InvalidCheckoutDataException.php',
         'MercadoPago\\Woocommerce\\Exceptions\\RejectedPaymentException' => __DIR__ . '/../..' . '/src/Exceptions/RejectedPaymentException.php',
         'MercadoPago\\Woocommerce\\Exceptions\\ResponseStatusException' => __DIR__ . '/../..' . '/src/Exceptions/ResponseStatusException.php',
+        'MercadoPago\\Woocommerce\\Funnel\\Funnel' => __DIR__ . '/../..' . '/src/Funnel/Funnel.php',
         'MercadoPago\\Woocommerce\\Gateways\\AbstractGateway' => __DIR__ . '/../..' . '/src/Gateways/AbstractGateway.php',
         'MercadoPago\\Woocommerce\\Gateways\\BasicGateway' => __DIR__ . '/../..' . '/src/Gateways/BasicGateway.php',
         'MercadoPago\\Woocommerce\\Gateways\\CreditsGateway' => __DIR__ . '/../..' . '/src/Gateways/CreditsGateway.php',
@@ -62,6 +63,7 @@ class ComposerStaticInit09743eb1e8ec07bd84f39fa5874cdeb7
         'MercadoPago\\Woocommerce\\Helpers\\Date' => __DIR__ . '/../..' . '/src/Helpers/Date.php',
         'MercadoPago\\Woocommerce\\Helpers\\Device' => __DIR__ . '/../..' . '/src/Helpers/Device.php',
         'MercadoPago\\Woocommerce\\Helpers\\Form' => __DIR__ . '/../..' . '/src/Helpers/Form.php',
+        'MercadoPago\\Woocommerce\\Helpers\\Gateways' => __DIR__ . '/../..' . '/src/Helpers/Gateways.php',
         'MercadoPago\\Woocommerce\\Helpers\\Images' => __DIR__ . '/../..' . '/src/Helpers/Images.php',
         'MercadoPago\\Woocommerce\\Helpers\\Links' => __DIR__ . '/../..' . '/src/Helpers/Links.php',
         'MercadoPago\\Woocommerce\\Helpers\\Nonce' => __DIR__ . '/../..' . '/src/Helpers/Nonce.php',
@@ -126,9 +128,9 @@ class ComposerStaticInit09743eb1e8ec07bd84f39fa5874cdeb7
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit09743eb1e8ec07bd84f39fa5874cdeb7::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit09743eb1e8ec07bd84f39fa5874cdeb7::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit09743eb1e8ec07bd84f39fa5874cdeb7::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit9f4fbd40d285907cc278c858e910d5af::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit9f4fbd40d285907cc278c858e910d5af::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit9f4fbd40d285907cc278c858e910d5af::$classMap;
 
         }, null, ClassLoader::class);
     }

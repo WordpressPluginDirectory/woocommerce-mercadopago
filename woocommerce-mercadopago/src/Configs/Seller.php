@@ -79,16 +79,16 @@ class Seller
      */
     private const CHECKOUT_PAYMENT_METHOD_PIX = '_mp_payment_methods_pix';
 
-    /**
-     * @const
-     */
-    private const ALL_PAYMENT_METHODS = '_all_payment_methods_v0';
 
     /**
      * @const
      */
     private const TEST_USER = '_test_user_v1';
 
+    /**
+     * @const
+     */
+    private const AUTO_UPDATE_PLUGINS = 'auto_update_plugins';
     /**
      * @var Cache
      */
@@ -309,6 +309,15 @@ class Seller
     }
 
     /**
+     * @return string
+     */
+    public function getCustIdFromAT()
+    {
+        preg_match('/(\d+)$/', $this->getCredentialsAccessToken(), $matches);
+        return $matches[0];
+    }
+
+    /**
      * @param string $gatewayOption
      *
      * @return array
@@ -423,7 +432,7 @@ class Seller
      */
     public function getAllPaymentMethods()
     {
-        return $this->options->get(self::ALL_PAYMENT_METHODS, '');
+        return $this->options->get(self::CHECKOUT_BASIC_PAYMENT_METHODS, '');
     }
 
     /**
@@ -439,11 +448,10 @@ class Seller
         $exPaymentOptions = $this->getAllPaymentMethods();
 
         if (!empty($exPaymentOptions)) {
-            $options = explode(',', $exPaymentOptions);
-
-            foreach ($options as $option) {
-                if ($this->options->getGatewayOption($gateway, "ex_payments_$option", 'yes') === 'no') {
-                    $exPayments[] = $option;
+            foreach ($exPaymentOptions as $exPaymentOption) {
+                $paymentId = $exPaymentOption['id'];
+                if ($this->options->getGatewayOption($gateway, "ex_payments_$paymentId", 'yes') === 'no') {
+                    $exPayments[] = $paymentId;
                 }
             }
         }
@@ -882,5 +890,19 @@ class Seller
                 'status' => 500,
             ];
         }
+    }
+    /**
+     * Get auto update mode
+     *
+     * @return bool
+     */
+    public function isAutoUpdate()
+    {
+        $auto_update_plugins = $this->options->get(self::AUTO_UPDATE_PLUGINS, '');
+
+        if (is_array($auto_update_plugins) && in_array('woocommerce-mercadopago/woocommerce-mercadopago.php', $auto_update_plugins)) {
+            return true;
+        }
+        return false;
     }
 }
