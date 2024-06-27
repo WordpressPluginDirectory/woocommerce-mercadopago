@@ -1,6 +1,6 @@
 <?php
 
-namespace MercadoPago\Woocommerce\Logs;
+namespace MercadoPago\Woocommerce\Libraries\Logs;
 
 if (!defined('ABSPATH')) {
     exit;

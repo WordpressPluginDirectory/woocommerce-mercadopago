@@ -1,10 +1,10 @@
 <?php
 
-namespace MercadoPago\Woocommerce\Logs\Transports;
+namespace MercadoPago\Woocommerce\Libraries\Logs\Transports;
 
 use MercadoPago\Woocommerce\Configs\Store;
 use MercadoPago\Woocommerce\Interfaces\LogInterface;
-use MercadoPago\Woocommerce\Logs\LogLevels;
+use MercadoPago\Woocommerce\Libraries\Logs\LogLevels;
 
 if (!defined('ABSPATH')) {
     exit;

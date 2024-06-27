@@ -180,19 +180,6 @@ class Preference extends AbstractEntity implements RequesterEntityInterface
     }
 
     /**
-     * Get and set custom headers for entity.
-     *
-     * @return array
-     */
-    public function getHeaders(): array
-    {
-        return [
-            'read' => [],
-            'save' => [],
-        ];
-    }
-
-    /**
      * Get uris.
      *
      * @return array
@@ -254,6 +241,6 @@ class Preference extends AbstractEntity implements RequesterEntityInterface
         array $queryStrings = [],
         bool $shouldTheExpectedResponseBeMappedOntoTheEntity = true
     ) {
-        return parent::read($params, $queryStrings, true);
+        return parent::read($params, $queryStrings, $shouldTheExpectedResponseBeMappedOntoTheEntity);
     }
 }

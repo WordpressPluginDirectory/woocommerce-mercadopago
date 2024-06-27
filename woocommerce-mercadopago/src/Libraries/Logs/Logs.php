@@ -1,9 +1,9 @@
 <?php
 
-namespace MercadoPago\Woocommerce\Logs;
+namespace MercadoPago\Woocommerce\Libraries\Logs;
 
-use MercadoPago\Woocommerce\Logs\Transports\File;
-use MercadoPago\Woocommerce\Logs\Transports\Remote;
+use MercadoPago\Woocommerce\Libraries\Logs\Transports\File;
+use MercadoPago\Woocommerce\Libraries\Logs\Transports\Remote;
 
 if (!defined('ABSPATH')) {
     exit;

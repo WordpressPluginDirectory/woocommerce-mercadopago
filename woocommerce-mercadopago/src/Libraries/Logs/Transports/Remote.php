@@ -1,11 +1,11 @@
 <?php
 
-namespace MercadoPago\Woocommerce\Logs\Transports;
+namespace MercadoPago\Woocommerce\Libraries\Logs\Transports;
 
 use MercadoPago\Woocommerce\Configs\Store;
 use MercadoPago\Woocommerce\Helpers\Requester;
 use MercadoPago\Woocommerce\Interfaces\LogInterface;
-use MercadoPago\Woocommerce\Logs\LogLevels;
+use MercadoPago\Woocommerce\Libraries\Logs\LogLevels;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -137,9 +137,19 @@ class Remote implements LogInterface
         try {
             global $woocommerce;
 
-            $level   = strtoupper($level);
-            $headers = ['Content-Type: application/json'];
-            $uri     = '/v1/plugins/melidata/errors';
+            $level      = strtoupper($level);
+            $headers    = ['Content-Type: application/json'];
+            $requestUrl = '/v1/plugins/melidata/errors';
+            $platform_uri = "";
+
+            if (isset($_SERVER['HTTP_HOST'])) {
+                $platform_uri .= sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST']));
+            }
+
+            if (isset($_SERVER['REQUEST_URI'])) {
+                $platform_uri .= sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI']));
+            }
+
             $body    = [
                 'name'         => self::METRIC_NAME_PREFIX . $level,
                 'message'      => '[' . $level . '] ' . $message . ' - Context: ' . json_encode($context),
@@ -149,13 +159,13 @@ class Remote implements LogInterface
                 ],
                 'platform'     => [
                     'name'     => MP_PLATFORM_NAME,
-                    'uri'      => $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+                    'uri'      => $platform_uri,
                     'version'  => $woocommerce->version,
                     'location' => '/backend',
                 ],
             ];
 
-            $this->requester->post($uri, $headers, $body);
+            $this->requester->post($requestUrl, $headers, $body);
         } catch (\Exception $e) {
             return;
         }

@@ -1,12 +1,12 @@
 <?php
 
-namespace MercadoPago\Woocommerce\IO;
+namespace MercadoPago\Woocommerce\Entities\Files;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class LogFile
+class Log
 {
     /**
      * @var string

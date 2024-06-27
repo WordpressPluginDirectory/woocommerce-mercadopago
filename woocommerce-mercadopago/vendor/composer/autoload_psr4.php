@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'MercadoPago\\Woocommerce\\' => array($baseDir . '/src'),
+    'MercadoPago\\PP\\Sdk\\' => array($baseDir . '/packages/sdk/src'),
 );
