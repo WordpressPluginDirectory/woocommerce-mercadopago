@@ -131,6 +131,7 @@ class ComposerStaticInitb0432a3c5c3bfd92e480f8620a5008af
         'MercadoPago\\Woocommerce\\Exceptions\\RejectedPaymentException' => __DIR__ . '/../..' . '/src/Exceptions/RejectedPaymentException.php',
         'MercadoPago\\Woocommerce\\Exceptions\\ResponseStatusException' => __DIR__ . '/../..' . '/src/Exceptions/ResponseStatusException.php',
         'MercadoPago\\Woocommerce\\Funnel\\Funnel' => __DIR__ . '/../..' . '/src/Funnel/Funnel.php',
+        'MercadoPago\\Woocommerce\\Funnel\\UpdateSellerFunnelBase' => __DIR__ . '/../..' . '/src/Funnel/UpdateSellerFunnelBase.php',
         'MercadoPago\\Woocommerce\\Gateways\\AbstractGateway' => __DIR__ . '/../..' . '/src/Gateways/AbstractGateway.php',
         'MercadoPago\\Woocommerce\\Gateways\\BasicGateway' => __DIR__ . '/../..' . '/src/Gateways/BasicGateway.php',
         'MercadoPago\\Woocommerce\\Gateways\\CreditsGateway' => __DIR__ . '/../..' . '/src/Gateways/CreditsGateway.php',

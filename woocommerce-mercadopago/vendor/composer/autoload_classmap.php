@@ -111,6 +111,7 @@ return array(
     'MercadoPago\\Woocommerce\\Exceptions\\RejectedPaymentException' => $baseDir . '/src/Exceptions/RejectedPaymentException.php',
     'MercadoPago\\Woocommerce\\Exceptions\\ResponseStatusException' => $baseDir . '/src/Exceptions/ResponseStatusException.php',
     'MercadoPago\\Woocommerce\\Funnel\\Funnel' => $baseDir . '/src/Funnel/Funnel.php',
+    'MercadoPago\\Woocommerce\\Funnel\\UpdateSellerFunnelBase' => $baseDir . '/src/Funnel/UpdateSellerFunnelBase.php',
     'MercadoPago\\Woocommerce\\Gateways\\AbstractGateway' => $baseDir . '/src/Gateways/AbstractGateway.php',
     'MercadoPago\\Woocommerce\\Gateways\\BasicGateway' => $baseDir . '/src/Gateways/BasicGateway.php',
     'MercadoPago\\Woocommerce\\Gateways\\CreditsGateway' => $baseDir . '/src/Gateways/CreditsGateway.php',
