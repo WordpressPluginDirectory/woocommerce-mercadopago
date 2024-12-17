@@ -22,18 +22,18 @@ use WC_Order_Item_Product;
 
 abstract class AbstractTransaction
 {
-    protected WoocommerceMercadoPago $mercadopago;
+    public WoocommerceMercadoPago $mercadopago;
 
-    protected Sdk $sdk;
+    public Sdk $sdk;
 
     /**
      * Transaction
      *
      * @var Payment|Preference
      */
-    protected $transaction;
+    public $transaction;
 
-    protected AbstractGateway $gateway;
+    public AbstractGateway $gateway;
 
     protected WC_Order $order;
 

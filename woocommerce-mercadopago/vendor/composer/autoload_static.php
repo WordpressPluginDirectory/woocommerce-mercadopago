@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitb0432a3c5c3bfd92e480f8620a5008af
+class ComposerStaticInit29e4698e2f640ef461d5ff51b7c3ff21
 {
     public static $prefixLengthsPsr4 = array (
         'M' => 
@@ -162,11 +162,13 @@ class ComposerStaticInitb0432a3c5c3bfd92e480f8620a5008af
         'MercadoPago\\Woocommerce\\Helpers\\Notices' => __DIR__ . '/../..' . '/src/Helpers/Notices.php',
         'MercadoPago\\Woocommerce\\Helpers\\NotificationType' => __DIR__ . '/../..' . '/src/Helpers/NotificationType.php',
         'MercadoPago\\Woocommerce\\Helpers\\Numbers' => __DIR__ . '/../..' . '/src/Helpers/Numbers.php',
+        'MercadoPago\\Woocommerce\\Helpers\\Paths' => __DIR__ . '/../..' . '/src/Helpers/Paths.php',
         'MercadoPago\\Woocommerce\\Helpers\\PaymentMethods' => __DIR__ . '/../..' . '/src/Helpers/PaymentMethods.php',
         'MercadoPago\\Woocommerce\\Helpers\\PaymentStatus' => __DIR__ . '/../..' . '/src/Helpers/PaymentStatus.php',
         'MercadoPago\\Woocommerce\\Helpers\\Requester' => __DIR__ . '/../..' . '/src/Helpers/Requester.php',
         'MercadoPago\\Woocommerce\\Helpers\\Session' => __DIR__ . '/../..' . '/src/Helpers/Session.php',
         'MercadoPago\\Woocommerce\\Helpers\\Strings' => __DIR__ . '/../..' . '/src/Helpers/Strings.php',
+        'MercadoPago\\Woocommerce\\Helpers\\Template' => __DIR__ . '/../..' . '/src/Helpers/Template.php',
         'MercadoPago\\Woocommerce\\Helpers\\Url' => __DIR__ . '/../..' . '/src/Helpers/Url.php',
         'MercadoPago\\Woocommerce\\Hooks' => __DIR__ . '/../..' . '/src/Hooks.php',
         'MercadoPago\\Woocommerce\\Hooks\\Admin' => __DIR__ . '/../..' . '/src/Hooks/Admin.php',
@@ -203,6 +205,7 @@ class ComposerStaticInitb0432a3c5c3bfd92e480f8620a5008af
         'MercadoPago\\Woocommerce\\Order\\OrderShipping' => __DIR__ . '/../..' . '/src/Order/OrderShipping.php',
         'MercadoPago\\Woocommerce\\Order\\OrderStatus' => __DIR__ . '/../..' . '/src/Order/OrderStatus.php',
         'MercadoPago\\Woocommerce\\Startup' => __DIR__ . '/../..' . '/src/Startup.php',
+        'MercadoPago\\Woocommerce\\Traits\\Singleton' => __DIR__ . '/../..' . '/src/Traits/Singleton.php',
         'MercadoPago\\Woocommerce\\Transactions\\AbstractPaymentTransaction' => __DIR__ . '/../..' . '/src/Transactions/AbstractPaymentTransaction.php',
         'MercadoPago\\Woocommerce\\Transactions\\AbstractPreferenceTransaction' => __DIR__ . '/../..' . '/src/Transactions/AbstractPreferenceTransaction.php',
         'MercadoPago\\Woocommerce\\Transactions\\AbstractTransaction' => __DIR__ . '/../..' . '/src/Transactions/AbstractTransaction.php',
@@ -222,9 +225,9 @@ class ComposerStaticInitb0432a3c5c3bfd92e480f8620a5008af
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitb0432a3c5c3bfd92e480f8620a5008af::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitb0432a3c5c3bfd92e480f8620a5008af::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitb0432a3c5c3bfd92e480f8620a5008af::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit29e4698e2f640ef461d5ff51b7c3ff21::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit29e4698e2f640ef461d5ff51b7c3ff21::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit29e4698e2f640ef461d5ff51b7c3ff21::$classMap;
 
         }, null, ClassLoader::class);
     }
