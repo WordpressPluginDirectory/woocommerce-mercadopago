@@ -342,8 +342,7 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
      */
     public function canCheckoutLoadScriptsAndStyles(): bool
     {
-        return $this->mercadopago->hooks->checkout->isCheckout() &&
-               $this->mercadopago->hooks->gateway->isEnabled($this) &&
+        return $this->mercadopago->hooks->gateway->isEnabled($this) &&
                ! $this->mercadopago->helpers->url->validateQueryVar('order-received');
     }
 
