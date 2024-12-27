@@ -31,7 +31,10 @@ class TicketTransaction extends AbstractPaymentTransaction
 
         $this->paymentMethodId = $this->checkout['payment_method_id'];
         $this->paymentPlaceId  = $this->mercadopago->helpers->paymentMethods->getPaymentPlaceId($this->paymentMethodId);
-        $this->paymentMethodId = $this->mercadopago->helpers->paymentMethods->getPaymentMethodId($this->paymentMethodId);
+        if ($this->countryConfigs['site_id'] !== 'MPE') {
+            $this->paymentMethodId = $this->mercadopago->helpers->paymentMethods->getPaymentMethodId($this->paymentMethodId);
+        }
+
 
         $this->transaction->installments = 1;
         $this->transaction->payment_method_id  = $this->paymentMethodId;
