@@ -344,8 +344,13 @@ class Order
 
                 foreach ($orders as $order) {
                     try {
+                        if ($this->orderMetadata->getSyncCronErrorCount($order) > 2) {
+                            continue;
+                        }
+
                         $this->syncOrderStatus($order);
                     } catch (Exception $ex) {
+                        $this->orderMetadata->incrementSyncCronErrorCount($order);
                         $error_message = "Unable to update order {$order->get_id()} on action got error: {$ex->getMessage()}";
 
                         $this->logs->file->error(
