@@ -137,6 +137,7 @@ return array(
     'MercadoPago\\Woocommerce\\Helpers\\Form' => $baseDir . '/src/Helpers/Form.php',
     'MercadoPago\\Woocommerce\\Helpers\\Gateways' => $baseDir . '/src/Helpers/Gateways.php',
     'MercadoPago\\Woocommerce\\Helpers\\Images' => $baseDir . '/src/Helpers/Images.php',
+    'MercadoPago\\Woocommerce\\Helpers\\Intervals' => $baseDir . '/src/Helpers/Intervals.php',
     'MercadoPago\\Woocommerce\\Helpers\\Links' => $baseDir . '/src/Helpers/Links.php',
     'MercadoPago\\Woocommerce\\Helpers\\Nonce' => $baseDir . '/src/Helpers/Nonce.php',
     'MercadoPago\\Woocommerce\\Helpers\\Notices' => $baseDir . '/src/Helpers/Notices.php',

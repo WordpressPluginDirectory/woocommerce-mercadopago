@@ -44,6 +44,10 @@
                 }
             ],
             "description": "Mercado Pago Plugins PHP-SDK",
+            "support": {
+                "issues": "https://github.com/mercadopago/pp-php-sdk/issues",
+                "source": "https://github.com/mercadopago/pp-php-sdk/tree/v2.12.0"
+            },
             "install-path": "../mp-plugins/php-sdk"
         }
     ],

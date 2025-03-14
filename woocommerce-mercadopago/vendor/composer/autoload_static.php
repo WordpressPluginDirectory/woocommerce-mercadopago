@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit29e4698e2f640ef461d5ff51b7c3ff21
+class ComposerStaticInit1004b76b84f429cab741868334f1c319
 {
     public static $prefixLengthsPsr4 = array (
         'M' => 
@@ -157,6 +157,7 @@ class ComposerStaticInit29e4698e2f640ef461d5ff51b7c3ff21
         'MercadoPago\\Woocommerce\\Helpers\\Form' => __DIR__ . '/../..' . '/src/Helpers/Form.php',
         'MercadoPago\\Woocommerce\\Helpers\\Gateways' => __DIR__ . '/../..' . '/src/Helpers/Gateways.php',
         'MercadoPago\\Woocommerce\\Helpers\\Images' => __DIR__ . '/../..' . '/src/Helpers/Images.php',
+        'MercadoPago\\Woocommerce\\Helpers\\Intervals' => __DIR__ . '/../..' . '/src/Helpers/Intervals.php',
         'MercadoPago\\Woocommerce\\Helpers\\Links' => __DIR__ . '/../..' . '/src/Helpers/Links.php',
         'MercadoPago\\Woocommerce\\Helpers\\Nonce' => __DIR__ . '/../..' . '/src/Helpers/Nonce.php',
         'MercadoPago\\Woocommerce\\Helpers\\Notices' => __DIR__ . '/../..' . '/src/Helpers/Notices.php',
@@ -225,9 +226,9 @@ class ComposerStaticInit29e4698e2f640ef461d5ff51b7c3ff21
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit29e4698e2f640ef461d5ff51b7c3ff21::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit29e4698e2f640ef461d5ff51b7c3ff21::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit29e4698e2f640ef461d5ff51b7c3ff21::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit1004b76b84f429cab741868334f1c319::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit1004b76b84f429cab741868334f1c319::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit1004b76b84f429cab741868334f1c319::$classMap;
 
         }, null, ClassLoader::class);
     }
