@@ -54,8 +54,7 @@ abstract class AbstractEntity implements \JsonSerializable, EntityInterface
         }
 
         if (is_subclass_of($this->{$name}, AbstractEntity::class) ||
-            is_subclass_of($this->{$name}, AbstractCollection::class)
-        ) {
+            is_subclass_of($this->{$name}, AbstractCollection::class)) {
             $this->{$name}->setEntity($value);
         } else {
             $this->{$name} = $value;
@@ -113,8 +112,8 @@ abstract class AbstractEntity implements \JsonSerializable, EntityInterface
      */
     public function toArray(): array
     {
-        $data                    = [];
-        $properties              = $this->getProperties();
+        $data = [];
+        $properties = $this->getProperties();
         $excludedPropertiesCount = count($this->excluded_properties);
 
         foreach ($properties as $property => $value) {
@@ -164,7 +163,7 @@ abstract class AbstractEntity implements \JsonSerializable, EntityInterface
         bool $shouldTheExpectedResponseBeMappedOntoTheEntity = true
     ) {
         $method = 'get';
-        $class  = get_called_class();
+        $class = get_called_class();
         $entity = null;
 
         if (is_subclass_of($class, AbstractEntity::class)) {
@@ -172,9 +171,9 @@ abstract class AbstractEntity implements \JsonSerializable, EntityInterface
         }
 
         $customHeaders = $this->getHeaders()['read'];
-        $header        = $this->manager->getHeader($customHeaders);
+        $header = $this->manager->getHeader($customHeaders);
 
-        $uri      = $this->manager->getEntityUri($entity, $method, $params, $queryStrings);
+        $uri = $this->manager->getEntityUri($entity, $method, $params, $queryStrings);
         $response = $this->manager->execute($entity, $uri, $method, $header);
         $this->obfuscateAuthorizationHeader($header);
         return $this->manager->handleResponse(
@@ -195,9 +194,9 @@ abstract class AbstractEntity implements \JsonSerializable, EntityInterface
         $method = 'put';
 
         $customHeaders = $this->getHeaders()['update'];
-        $header        = $this->manager->getHeader($customHeaders);
+        $header = $this->manager->getHeader($customHeaders);
 
-        $uri      = $this->manager->getEntityUri($this, $method);
+        $uri = $this->manager->getEntityUri($this, $method);
         $response = $this->manager->execute($this, $uri, $method, $header);
         $this->obfuscateAuthorizationHeader($header);
         return $this->manager->handleResponse($response, $method);
@@ -214,12 +213,18 @@ abstract class AbstractEntity implements \JsonSerializable, EntityInterface
         $method = 'post';
 
         $customHeaders = $this->getHeaders()['save'];
-        $header        = $this->manager->getHeader($customHeaders);
 
-        $uri      = $this->manager->getEntityUri($this, $method);
+        $header = $this->manager->getHeader($customHeaders);
+
+        $uri = $this->manager->getEntityUri($this, $method);
+
         $response = $this->manager->execute($this, $uri, $method, $header);
+
         $this->obfuscateAuthorizationHeader($header);
-        return $this->manager->handleResponse($response, $method);
+
+        $handleResponse = $this->manager->handleResponse($response, $method);
+
+        return $handleResponse;
     }
 
     /**
@@ -233,9 +238,9 @@ abstract class AbstractEntity implements \JsonSerializable, EntityInterface
         $method = 'post';
 
         $customHeaders = $this->getHeaders()['save'];
-        $header        = $this->manager->getHeader($customHeaders);
+        $header = $this->manager->getHeader($customHeaders);
 
-        $uri      = $this->manager->getEntityUri($this, $method);
+        $uri = $this->manager->getEntityUri($this, $method);
         $response = $this->manager->execute($this, $uri, $method, $header);
         $this->obfuscateAuthorizationHeader($header);
         return $this->manager->handleResponseWithHeaders($response);
@@ -254,9 +259,9 @@ abstract class AbstractEntity implements \JsonSerializable, EntityInterface
     {
         $method = 'post';
         $customHeaders = $this->getHeaders()['save'];
-        $header        = $this->manager->getHeader($customHeaders);
+        $header = $this->manager->getHeader($customHeaders);
 
-        $uri      = $this->manager->getEntityUri($this, $method, $params, $queryStrings);
+        $uri = $this->manager->getEntityUri($this, $method, $params, $queryStrings);
         $response = $this->manager->execute($this, $uri, $method, $header);
         $this->obfuscateAuthorizationHeader($header);
         return $this->manager->handleResponse($response, $method);

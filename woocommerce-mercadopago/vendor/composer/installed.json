@@ -2,17 +2,17 @@
     "packages": [
         {
             "name": "mp-plugins/php-sdk",
-            "version": "2.12.0",
-            "version_normalized": "2.12.0.0",
+            "version": "3.1.0",
+            "version_normalized": "3.1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mercadopago/pp-php-sdk.git",
-                "reference": "2074ab9c336711187b9e1bededac58fbfbf66da8"
+                "reference": "f6e4cbfb11ce59e2cb8ae2d030ef844318f94105"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mercadopago/pp-php-sdk/zipball/2074ab9c336711187b9e1bededac58fbfbf66da8",
-                "reference": "2074ab9c336711187b9e1bededac58fbfbf66da8",
+                "url": "https://api.github.com/repos/mercadopago/pp-php-sdk/zipball/f6e4cbfb11ce59e2cb8ae2d030ef844318f94105",
+                "reference": "f6e4cbfb11ce59e2cb8ae2d030ef844318f94105",
                 "shasum": ""
             },
             "require": {
@@ -23,7 +23,7 @@
                 "phpunit/phpunit": "9.5.27",
                 "squizlabs/php_codesniffer": "3.7.2"
             },
-            "time": "2024-06-07T14:21:00+00:00",
+            "time": "2025-03-26T13:14:25+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -46,7 +46,7 @@
             "description": "Mercado Pago Plugins PHP-SDK",
             "support": {
                 "issues": "https://github.com/mercadopago/pp-php-sdk/issues",
-                "source": "https://github.com/mercadopago/pp-php-sdk/tree/v2.12.0"
+                "source": "https://github.com/mercadopago/pp-php-sdk/tree/v3.1.0"
             },
             "install-path": "../mp-plugins/php-sdk"
         }

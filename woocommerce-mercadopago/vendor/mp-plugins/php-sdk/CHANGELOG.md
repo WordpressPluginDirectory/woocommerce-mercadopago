@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## V3.1.0
+### Fixed
+- Fixed missing `X-Device-Fingerprint` when using associative headers.
+
+## V3.0.1
+### Changed
+- Update pre-commit-config
+- Update `identification.number` variable type on payment and preference mocks
+- Update actions/cache to v4 according to [deprecation notice](https://github.com/actions/cache/discussions/1510)
+
+## V3.0.0
+### Added
+- Add new parameter `uris_scope` on SDK instantiation to allow use of beta scopes on APIs calls
+
+## V2.13.0
+### Added
+- Add new method to get onboarding data for the new credential autofill flow
+
+## V2.12.3
+### Removed
+- Remove test card tokens
+
+## V2.12.2
+### Removed
+- Remove create preference logs
+
+## V2.12.1 (Not use on prod)
+### Added
+- Add create preference logs
+
 ## V2.12.0
 ### Changed
 - Changes the type of the `additional_info.shipments.receiver_address` attribute from `AdditionalInfoAddress` to `ReceiverAddress`.

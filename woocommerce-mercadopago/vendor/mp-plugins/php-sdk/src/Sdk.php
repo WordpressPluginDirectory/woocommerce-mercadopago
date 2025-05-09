@@ -20,6 +20,7 @@ use MercadoPago\PP\Sdk\Entity\Payment\PaymentV21;
 use MercadoPago\PP\Sdk\Entity\Preference\Preference;
 use MercadoPago\PP\Sdk\Entity\PaymentMethods\PaymentMethods;
 use MercadoPago\PP\Sdk\Entity\MerchantOrder\MerchantOrder;
+use MercadoPago\PP\Sdk\Entity\Onboarding\Onboarding;
 use MercadoPago\PP\Sdk\HttpClient\HttpClient;
 use MercadoPago\PP\Sdk\HttpClient\Requester\CurlRequester;
 use MercadoPago\PP\Sdk\HttpClient\Requester\RequesterInterface;
@@ -49,13 +50,15 @@ class Sdk
      * @param String $product_id
      * @param String $integrator_id
      * @param String $public_key
+     * @param String $uris_scope
      */
     public function __construct(
         string $access_token = null,
         string $platform_id = null,
         string $product_id = null,
         string $integrator_id = null,
-        string $public_key = null
+        string $public_key = null,
+        string $uris_scope = null
     ) {
         $this->requester = new CurlRequester();
         $this->config = new Config();
@@ -64,7 +67,8 @@ class Sdk
             'platform_id' => $platform_id,
             'product_id' => $product_id,
             'integrator_id' => $integrator_id,
-            'public_key' => $public_key
+            'public_key' => $public_key,
+            'uris_scope' => $uris_scope
         ];
         
         foreach ($parameters as $key => $value) {
@@ -218,6 +222,17 @@ class Sdk
     {
         return $this->getEntityInstance(
             'MercadoPago\PP\Sdk\Entity\Identification\UpdateSellerFunnelBase',
+            Constants::BASEURL_MP
+        );
+    }
+
+    /**
+     * @return Onboarding
+     */
+    public function getOnboardingInstance()
+    {
+        return $this->getEntityInstance(
+            'MercadoPago\PP\Sdk\Entity\Onboarding\Onboarding',
             Constants::BASEURL_MP
         );
     }

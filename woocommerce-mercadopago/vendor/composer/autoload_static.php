@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit1004b76b84f429cab741868334f1c319
+class ComposerStaticInit2db93fba95914471d46674e1bc790613
 {
     public static $prefixLengthsPsr4 = array (
         'M' => 
@@ -49,6 +49,9 @@ class ComposerStaticInit1004b76b84f429cab741868334f1c319
         'MercadoPago\\PP\\Sdk\\Entity\\Notification\\RefundList' => __DIR__ . '/..' . '/mp-plugins/php-sdk/src/Entity/Notification/RefundList.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Notification\\RefundNotifying' => __DIR__ . '/..' . '/mp-plugins/php-sdk/src/Entity/Notification/RefundNotifying.php',
         'MercadoPago\\PP\\Sdk\\Entity\\Notification\\RefundNotifyingList' => __DIR__ . '/..' . '/mp-plugins/php-sdk/src/Entity/Notification/RefundNotifyingList.php',
+        'MercadoPago\\PP\\Sdk\\Entity\\Onboarding\\Application' => __DIR__ . '/..' . '/mp-plugins/php-sdk/src/Entity/Onboarding/Application.php',
+        'MercadoPago\\PP\\Sdk\\Entity\\Onboarding\\Onboarding' => __DIR__ . '/..' . '/mp-plugins/php-sdk/src/Entity/Onboarding/Onboarding.php',
+        'MercadoPago\\PP\\Sdk\\Entity\\Onboarding\\User' => __DIR__ . '/..' . '/mp-plugins/php-sdk/src/Entity/Onboarding/User.php',
         'MercadoPago\\PP\\Sdk\\Entity\\PaymentMethods\\FinancialInstitution' => __DIR__ . '/..' . '/mp-plugins/php-sdk/src/Entity/PaymentMethods/FinancialInstitution.php',
         'MercadoPago\\PP\\Sdk\\Entity\\PaymentMethods\\FinancialInstitutionList' => __DIR__ . '/..' . '/mp-plugins/php-sdk/src/Entity/PaymentMethods/FinancialInstitutionList.php',
         'MercadoPago\\PP\\Sdk\\Entity\\PaymentMethods\\PaymentMethod' => __DIR__ . '/..' . '/mp-plugins/php-sdk/src/Entity/PaymentMethods/PaymentMethod.php',
@@ -122,6 +125,7 @@ class ComposerStaticInit1004b76b84f429cab741868334f1c319
         'MercadoPago\\Woocommerce\\Configs\\Store' => __DIR__ . '/../..' . '/src/Configs/Store.php',
         'MercadoPago\\Woocommerce\\Dependencies' => __DIR__ . '/../..' . '/src/Dependencies.php',
         'MercadoPago\\Woocommerce\\Endpoints\\CheckoutCustom' => __DIR__ . '/../..' . '/src/Endpoints/CheckoutCustom.php',
+        'MercadoPago\\Woocommerce\\Endpoints\\IntegrationWebhook' => __DIR__ . '/../..' . '/src/Endpoints/IntegrationWebhook.php',
         'MercadoPago\\Woocommerce\\Entities\\Files\\Log' => __DIR__ . '/../..' . '/src/Entities/Files/Log.php',
         'MercadoPago\\Woocommerce\\Entities\\Metadata\\PaymentMetadata' => __DIR__ . '/../..' . '/src/Entities/Metadata/PaymentMetadata.php',
         'MercadoPago\\Woocommerce\\Entities\\Metadata\\PaymentMetadataAddress' => __DIR__ . '/../..' . '/src/Entities/Metadata/PaymentMetadataAddress.php',
@@ -147,6 +151,7 @@ class ComposerStaticInit1004b76b84f429cab741868334f1c319
         'MercadoPago\\Woocommerce\\Helpers\\Cart' => __DIR__ . '/../..' . '/src/Helpers/Cart.php',
         'MercadoPago\\Woocommerce\\Helpers\\Categories' => __DIR__ . '/../..' . '/src/Helpers/Categories.php',
         'MercadoPago\\Woocommerce\\Helpers\\Country' => __DIR__ . '/../..' . '/src/Helpers/Country.php',
+        'MercadoPago\\Woocommerce\\Helpers\\CredentialsStates' => __DIR__ . '/../..' . '/src/Helpers/CredentialsStates.php',
         'MercadoPago\\Woocommerce\\Helpers\\CreditsEnabled' => __DIR__ . '/../..' . '/src/Helpers/CreditsEnabled.php',
         'MercadoPago\\Woocommerce\\Helpers\\Cron' => __DIR__ . '/../..' . '/src/Helpers/Cron.php',
         'MercadoPago\\Woocommerce\\Helpers\\Currency' => __DIR__ . '/../..' . '/src/Helpers/Currency.php',
@@ -156,6 +161,7 @@ class ComposerStaticInit1004b76b84f429cab741868334f1c319
         'MercadoPago\\Woocommerce\\Helpers\\Environment' => __DIR__ . '/../..' . '/src/Helpers/Environment.php',
         'MercadoPago\\Woocommerce\\Helpers\\Form' => __DIR__ . '/../..' . '/src/Helpers/Form.php',
         'MercadoPago\\Woocommerce\\Helpers\\Gateways' => __DIR__ . '/../..' . '/src/Helpers/Gateways.php',
+        'MercadoPago\\Woocommerce\\Helpers\\I18n' => __DIR__ . '/../..' . '/src/Helpers/I18n.php',
         'MercadoPago\\Woocommerce\\Helpers\\Images' => __DIR__ . '/../..' . '/src/Helpers/Images.php',
         'MercadoPago\\Woocommerce\\Helpers\\Intervals' => __DIR__ . '/../..' . '/src/Helpers/Intervals.php',
         'MercadoPago\\Woocommerce\\Helpers\\Links' => __DIR__ . '/../..' . '/src/Helpers/Links.php',
@@ -226,9 +232,9 @@ class ComposerStaticInit1004b76b84f429cab741868334f1c319
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit1004b76b84f429cab741868334f1c319::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit1004b76b84f429cab741868334f1c319::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit1004b76b84f429cab741868334f1c319::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit2db93fba95914471d46674e1bc790613::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit2db93fba95914471d46674e1bc790613::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit2db93fba95914471d46674e1bc790613::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -67,7 +67,8 @@ class Manager
     public function getEntityUri(AbstractEntity $entity, string $method, array $params = [], array $queryStrings = [])
     {
         if (method_exists($entity, 'getUris')) {
-            $uri = $entity->getUris()[$method];
+            $uris_scope = $this->config->__get('uris_scope');
+            $uri = $entity->getUris($uris_scope)[$method];
             $matches = [];
             preg_match_all('/\\:\\w+/', $uri, $matches);
 
@@ -99,12 +100,12 @@ class Manager
      */
     public function getDefaultHeader(): array
     {
-          return [
+        return [
             'Authorization' => 'Bearer ' . $this->config->__get('access_token'),
             'x-platform-id' => $this->config->__get('platform_id'),
             'x-product-id' => $this->config->__get('product_id'),
             'x-integrator-id' => $this->config->__get('integrator_id')
-          ];
+        ];
     }
 
     /**
@@ -132,7 +133,8 @@ class Manager
         $defaultHeaders = $this->getDefaultHeader();
         if (count($customHeaders) > 0 && !$this->isHeadersAsKeyAndValueMap($customHeaders)) {
             $customHeaders = $this->setHeadersAsKeyAndValueMap($customHeaders);
-        };
+        }
+        ;
         return $this->normalizeHeaders(array_merge($defaultHeaders, $customHeaders));
     }
 
@@ -157,7 +159,7 @@ class Manager
         }
         return $headersAsKeyAndValueMap;
     }
-    
+
     /**
      * Checks if the header is in key and value format
      *
@@ -200,6 +202,7 @@ class Manager
             return $response->getData();
         } elseif (intval($response->getStatus()) >= 400 && intval($response->getStatus()) < 500) {
             $message = $response->getData()['message'] ?? 'No message for Multipayment scenario in v1!';
+
             throw new \Exception($message);
         } else {
             throw new \Exception("Internal API Error");
