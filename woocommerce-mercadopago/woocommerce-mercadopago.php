@@ -4,13 +4,13 @@
  * Plugin Name: Mercado Pago
  * Plugin URI: https://github.com/mercadopago/cart-woocommerce
  * Description: Configure the payment options and accept payments with cards, ticket and money of Mercado Pago account.
- * Version: 8.0.1
+ * Version: 8.2.0
  * Author: Mercado Pago
  * Author URI: https://developers.mercadopago.com/
  * Text Domain: woocommerce-mercadopago
  * Domain Path: /i18n/languages/
  * WC requires at least: 5.5.2
- * WC tested up to: 9.7.1
+ * WC tested up to: 9.9.5
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
  *
@@ -50,12 +50,22 @@ if (!class_exists('WoocommerceMercadoPago')) {
 
 register_activation_hook(__FILE__, 'mp_register_activate');
 register_deactivation_hook(__FILE__, 'mp_disable_plugin');
-add_filter('upgrader_post_install', function (bool $response, array $hookExtra): bool {
-    if (($hookExtra['plugin'] ?? '') !== plugin_basename(__FILE__)) {
-        return $response;
+add_filter('upgrader_post_install', function ($response, array $hookExtra): bool {
+    if (!isset($hookExtra['plugin']) || empty($hookExtra['plugin'])) {
+        return is_bool($response) ? $response : true;
     }
-    update_option('_mp_execute_after_update', 1);
-    return $response;
+
+    if ($hookExtra['plugin'] !== plugin_basename(__FILE__)) {
+        return is_bool($response) ? $response : true;
+    }
+
+    try {
+        update_option('_mp_execute_after_update', 1);
+        return is_bool($response) ? $response : true;
+    } catch (\Exception $e) {
+        error_log('MercadoPago Plugin Update Error: ' . $e->getMessage());
+        return true;
+    }
 }, 10, 2);
 
 function mp_register_activate()

@@ -131,6 +131,7 @@ class ComposerStaticInit2db93fba95914471d46674e1bc790613
         'MercadoPago\\Woocommerce\\Entities\\Metadata\\PaymentMetadataAddress' => __DIR__ . '/../..' . '/src/Entities/Metadata/PaymentMetadataAddress.php',
         'MercadoPago\\Woocommerce\\Entities\\Metadata\\PaymentMetadataCpp' => __DIR__ . '/../..' . '/src/Entities/Metadata/PaymentMetadataCpp.php',
         'MercadoPago\\Woocommerce\\Entities\\Metadata\\PaymentMetadataUser' => __DIR__ . '/../..' . '/src/Entities/Metadata/PaymentMetadataUser.php',
+        'MercadoPago\\Woocommerce\\Entities\\Metadata\\ThemeMetadata' => __DIR__ . '/../..' . '/src/Entities/Metadata/ThemeMetadata.php',
         'MercadoPago\\Woocommerce\\Exceptions\\InvalidCheckoutDataException' => __DIR__ . '/../..' . '/src/Exceptions/InvalidCheckoutDataException.php',
         'MercadoPago\\Woocommerce\\Exceptions\\RejectedPaymentException' => __DIR__ . '/../..' . '/src/Exceptions/RejectedPaymentException.php',
         'MercadoPago\\Woocommerce\\Exceptions\\ResponseStatusException' => __DIR__ . '/../..' . '/src/Exceptions/ResponseStatusException.php',

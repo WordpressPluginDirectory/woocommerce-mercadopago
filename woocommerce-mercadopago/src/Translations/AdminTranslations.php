@@ -383,7 +383,7 @@ class AdminTranslations
         );
 
         $this->basicGatewaySettings = [
-            'gateway_title'                             => __('Your saved cards or money available in Mercado Pago', 'woocommerce-mercadopago'),
+            'gateway_title'                             => __('Mercado Pago', 'woocommerce-mercadopago'),
             'gateway_description'                       => __('Your clients finalize their payments in Mercado Pago.', 'woocommerce-mercadopago'),
             'gateway_method_title'                      => __('Mercado Pago - Checkout Pro', 'woocommerce-mercadopago'),
             'gateway_method_description'                => __('Your clients finalize their payments in Mercado Pago.', 'woocommerce-mercadopago'),
@@ -398,7 +398,7 @@ class AdminTranslations
             'enabled_descriptions_disabled'             => $enabledDescriptionsDisabled,
             'title_title'                               => __('Title in the store Checkout', 'woocommerce-mercadopago'),
             'title_description'                         => __('Change the display text in Checkout, maximum characters: 85', 'woocommerce-mercadopago'),
-            'title_default'                             => __('Your saved cards or money available in Mercado Pago', 'woocommerce-mercadopago'),
+            'title_default'                             => __('Mercado Pago', 'woocommerce-mercadopago'),
             'title_desc_tip'                            => __('The text inserted here will not be translated to other languages', 'woocommerce-mercadopago'),
             'currency_conversion_title'                 => __('Convert Currency', 'woocommerce-mercadopago'),
             'currency_conversion_subtitle'              => __('Activate this option so that the value of the currency set in WooCommerce is compatible with the value of the currency you use in Mercado Pago.', 'woocommerce-mercadopago'),
@@ -498,10 +498,10 @@ class AdminTranslations
         );
 
         $this->creditsGatewaySettings = [
-            'gateway_title'                             => __('Installments without cards through Mercado Pago', 'woocommerce-mercadopago'),
-            'gateway_description'                       => __('Your customers finish their payments on Mercado Pago.', 'woocommerce-mercadopago'),
-            'gateway_method_title'                      => __('Mercado Pago - Checkout Pro', 'woocommerce-mercadopago'),
-            'gateway_method_description'                => __('Your customers finish their payments on Mercado Pago.', 'woocommerce-mercadopago'),
+            'gateway_title'                             => __('Payments without a Mercado Pago card', 'woocommerce-mercadopago'),
+            'gateway_description'                       => __('Your customers finish their payments on Mercado Pago with a credit line.', 'woocommerce-mercadopago'),
+            'gateway_method_title'                      => __('Mercado Pago - Checkout Pro Pagos sin Tarjeta', 'woocommerce-mercadopago'),
+            'gateway_method_description'                => __('Your customers finish their payments on Mercado Pago with a credit line.', 'woocommerce-mercadopago'),
             'header_title'                              => __('Up to 12 installments without cards through Mercado Pago', 'woocommerce-mercadopago'),
             'header_description'                        => __('With this alternative, you’ll be able to sell in installments without cards and receive the money immediately with the same fees as with credit cards. Your sales are protected and guaranteed by Mercado Pago.', 'woocommerce-mercadopago'),
             'card_settings_title'                       => __('Mercado Pago plugin general settings', 'woocommerce-mercadopago'),
@@ -646,9 +646,9 @@ class AdminTranslations
 
         $this->customGatewaySettings = [
             'gateway_title'                             => __('Credit and debit cards', 'woocommerce-mercadopago'),
-            'gateway_description'                       => __('Payments without leaving your store with our customizable checkout', 'woocommerce-mercadopago'),
+            'gateway_description'                       => __('Payments without leaving your store with our customizable checkout.', 'woocommerce-mercadopago'),
             'gateway_method_title'                      => __('Mercado Pago - Checkout API', 'woocommerce-mercadopago'),
-            'gateway_method_description'                => __('Payments without leaving your store with our customizable checkout', 'woocommerce-mercadopago'),
+            'gateway_method_description'                => __('Payments without leaving your store with our customizable checkout.', 'woocommerce-mercadopago'),
             'header_title'                              => __('Transparent Checkout | Credit card', 'woocommerce-mercadopago'),
             'header_description'                        => __('With the Transparent Checkout, you can sell inside your store environment, without redirection and with the security from Mercado Pago.', 'woocommerce-mercadopago'),
             'card_settings_title'                       => __('Mercado Pago Plugin general settings', 'woocommerce-mercadopago'),
@@ -711,8 +711,8 @@ class AdminTranslations
 
         $this->ticketGatewaySettings = [
             'gateway_title'                => __('Invoice', 'woocommerce-mercadopago'),
-            'gateway_description'          => __('Payments without leaving your store with our customizable checkout', 'woocommerce-mercadopago'),
-            'method_title'                 => __('Mercado Pago - Checkout API', 'woocommerce-mercadopago'),
+            'gateway_description'          => __('Payments without leaving your store with our customizable checkout.', 'woocommerce-mercadopago'),
+            'method_title'                 => __('Mercado Pago - Checkout API Invoice', 'woocommerce-mercadopago'),
             'header_title'                 => __('Transparent Checkout | Invoice or Loterica', 'woocommerce-mercadopago'),
             'header_description'           => __('With the Transparent Checkout, you can sell inside your store environment, without redirection and all the safety from Mercado Pago.', 'woocommerce-mercadopago'),
             'card_settings_title'          => __('Mercado Pago plugin general settings', 'woocommerce-mercadopago'),
@@ -773,8 +773,8 @@ class AdminTranslations
 
         $this->pseGatewaySettings = [
             'gateway_title'                => __('PSE', 'woocommerce-mercadopago'),
-            'gateway_description'          => __('Payments without leaving your store with our customizable checkout', 'woocommerce-mercadopago'),
-            'method_title'                 => __('Mercado Pago - Checkout API', 'woocommerce-mercadopago'),
+            'gateway_description'          => __('Payments without leaving your store with our customizable checkout.', 'woocommerce-mercadopago'),
+            'method_title'                 => __('Mercado Pago - Checkout API PSE', 'woocommerce-mercadopago'),
             'header_title'                 => __('Transparent Checkout PSE', 'woocommerce-mercadopago'),
             'header_description'           => __('With the Transparent Checkout, you can sell inside your store environment, without redirection and all the safety from Mercado Pago.', 'woocommerce-mercadopago'),
             'card_settings_title'          => __('Mercado Pago plugin general settings', 'woocommerce-mercadopago'),
@@ -853,9 +853,9 @@ class AdminTranslations
 
         $this->pixGatewaySettings = [
             'gateway_title'                             => __('Pix', 'woocommerce-mercadopago'),
-            'gateway_description'                       => __('Payments without leaving your store with our customizable checkout', 'woocommerce-mercadopago'),
-            'gateway_method_title'                      => __('Mercado Pago - Checkout API', 'woocommerce-mercadopago'),
-            'gateway_method_description'                => __('Payments without leaving your store with our customizable checkout', 'woocommerce-mercadopago'),
+            'gateway_description'                       => __('Payments without leaving your store with our customizable checkout.', 'woocommerce-mercadopago'),
+            'gateway_method_title'                      => __('Mercado Pago - Checkout API Pix', 'woocommerce-mercadopago'),
+            'gateway_method_description'                => __('Payments without leaving your store with our customizable checkout.', 'woocommerce-mercadopago'),
             'header_title'                              => __('Transparent Checkout | Pix', 'woocommerce-mercadopago'),
             'header_description'                        => __('With the Transparent Checkout, you can sell inside your store environment, without redirection and all the safety from Mercado Pago.', 'woocommerce-mercadopago'),
             'card_settings_title'                       => __('Mercado Pago plugin general settings', 'woocommerce-mercadopago'),
@@ -947,7 +947,7 @@ class AdminTranslations
         $this->yapeGatewaySettings = [
             'gateway_title'                             => __('Yape', 'woocommerce-mercadopago'),
             'gateway_description'                       => __('Payments without leaving your store with our customizable checkout.', 'woocommerce-mercadopago'),
-            'gateway_method_title'                      => __('Mercado Pago - Checkout API', 'woocommerce-mercadopago'),
+            'gateway_method_title'                      => __('Mercado Pago - Checkout API Yape', 'woocommerce-mercadopago'),
             'gateway_method_description'                => __('Payments without leaving your store with our customizable checkout.', 'woocommerce-mercadopago'),
             'header_title'                              => __('Checkout API | Yape', 'woocommerce-mercadopago'),
             'header_description'                        => __('Receive payments through the Yape app automatically, without redirects, and with all the security of Mercado Pago. ', 'woocommerce-mercadopago'),

@@ -111,6 +111,7 @@ return array(
     'MercadoPago\\Woocommerce\\Entities\\Metadata\\PaymentMetadataAddress' => $baseDir . '/src/Entities/Metadata/PaymentMetadataAddress.php',
     'MercadoPago\\Woocommerce\\Entities\\Metadata\\PaymentMetadataCpp' => $baseDir . '/src/Entities/Metadata/PaymentMetadataCpp.php',
     'MercadoPago\\Woocommerce\\Entities\\Metadata\\PaymentMetadataUser' => $baseDir . '/src/Entities/Metadata/PaymentMetadataUser.php',
+    'MercadoPago\\Woocommerce\\Entities\\Metadata\\ThemeMetadata' => $baseDir . '/src/Entities/Metadata/ThemeMetadata.php',
     'MercadoPago\\Woocommerce\\Exceptions\\InvalidCheckoutDataException' => $baseDir . '/src/Exceptions/InvalidCheckoutDataException.php',
     'MercadoPago\\Woocommerce\\Exceptions\\RejectedPaymentException' => $baseDir . '/src/Exceptions/RejectedPaymentException.php',
     'MercadoPago\\Woocommerce\\Exceptions\\ResponseStatusException' => $baseDir . '/src/Exceptions/ResponseStatusException.php',

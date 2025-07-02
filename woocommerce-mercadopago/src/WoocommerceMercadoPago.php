@@ -33,7 +33,7 @@ if (!defined('ABSPATH')) {
 
 class WoocommerceMercadoPago
 {
-    private const PLUGIN_VERSION = '8.0.1';
+    private const PLUGIN_VERSION = '8.2.0';
 
     private const PLUGIN_MIN_PHP = '7.4';
 
@@ -87,7 +87,6 @@ class WoocommerceMercadoPago
     public function __construct()
     {
         $this->defineConstants();
-        $this->loadPluginTextDomain();
         $this->registerHooks();
     }
 
@@ -100,7 +99,13 @@ class WoocommerceMercadoPago
     {
         $textDomain = $this->pluginMetadata('text-domain');
         unload_textdomain($textDomain);
-        $locale = explode('_', apply_filters('plugin_locale', get_locale(), $textDomain))[0];
+
+        $location_splitted = explode('_', apply_filters('plugin_locale', get_locale(), $textDomain));
+
+        $locale = $location_splitted[0];
+        $country = $location_splitted[1] ?? '';
+        $locale = in_array($country, ['MX']) ? $locale . '_' . $country : $locale;
+
         load_textdomain($textDomain, Paths::basePath(Paths::join($this->pluginMetadata('domain-path'), "woocommerce-mercadopago-$locale.mo")));
     }
 
@@ -111,7 +116,8 @@ class WoocommerceMercadoPago
      */
     public function registerHooks(): void
     {
-        add_action('plugins_loaded', [$this, 'init']);
+        add_action('init', [$this, 'loadPluginTextDomain'], 0);
+        add_action('init', [$this, 'init'], 1);
         add_filter('query_vars', function ($vars) {
             $vars[] = 'wallet_button';
             return $vars;

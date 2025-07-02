@@ -193,6 +193,11 @@ class Settings
     {
         if ($this->canLoadScriptsAndStyles()) {
             $this->scripts->registerAdminStyle(
+                'mercadopago_vars_css',
+                $this->url->getCssAsset('public/mp-vars')
+            );
+
+            $this->scripts->registerAdminStyle(
                 'mercadopago_settings_admin_css',
                 $this->url->getCssAsset('admin/mp-admin-settings')
             );
@@ -477,6 +482,11 @@ class Settings
             }
 
             $testCredentialsValidation = $this->seller->validateCredentials($accessTokenTest, $publicKeyTest);
+
+            if ($testCredentialsValidation[self::STATUS] == 401) {
+                return CredentialsStates::UNAUTHORIZED_ACCESS_TOKEN;
+            }
+
             if ($testCredentialsValidation[self::STATUS] !== 200) {
                 return self::COULD_NOT_VALIDATE_LINK;
             }
