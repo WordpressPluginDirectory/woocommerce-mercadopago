@@ -58,6 +58,8 @@ class AdminTranslations
 
     public array $countries = [];
 
+    public array $refund = [];
+
     public array $links;
 
     /**
@@ -93,6 +95,7 @@ class AdminTranslations
         $this->setCurrencyTranslations();
         $this->setStatusSyncTranslations();
         $this->setCountriesTranslations();
+        $this->setRefundTranslations();
     }
 
     /**
@@ -596,13 +599,25 @@ class AdminTranslations
      */
     private function setCustomGatewaySettingsTranslations(): void
     {
-        $enabledDescriptionsEnabled = sprintf(
+        $enabledDescriptionsEnabledAll = sprintf(
+            '%s <b>%s</b>.',
+            __('Transparent Checkout for credit or debit cards is', 'woocommerce-mercadopago'),
+            __('enabled', 'woocommerce-mercadopago')
+        );
+
+        $enabledDescriptionsDisabledAll = sprintf(
+            '%s <b>%s</b>.',
+            __('Transparent Checkout for credit or debit cards is', 'woocommerce-mercadopago'),
+            __('disabled', 'woocommerce-mercadopago')
+        );
+
+        $enabledDescriptionsEnabledMLB = sprintf(
             '%s <b>%s</b>.',
             __('Transparent Checkout for credit cards is', 'woocommerce-mercadopago'),
             __('enabled', 'woocommerce-mercadopago')
         );
 
-        $enabledDescriptionsDisabled = sprintf(
+        $enabledDescriptionsDisabledMLB = sprintf(
             '%s <b>%s</b>.',
             __('Transparent Checkout for credit cards is', 'woocommerce-mercadopago'),
             __('disabled', 'woocommerce-mercadopago')
@@ -645,22 +660,25 @@ class AdminTranslations
         );
 
         $this->customGatewaySettings = [
-            'gateway_title'                             => __('Credit and debit cards', 'woocommerce-mercadopago'),
-            'gateway_description'                       => __('Payments without leaving your store with our customizable checkout.', 'woocommerce-mercadopago'),
+            'gateway_title_ALL'                         => __('Credit or debit card', 'woocommerce-mercadopago'),
+            'gateway_title_MLB'                         => __('Credit card', 'woocommerce-mercadopago'),
+            'gateway_description'                       => __('Payments without leaving your store with our customizable checkout', 'woocommerce-mercadopago'),
             'gateway_method_title'                      => __('Mercado Pago - Checkout API', 'woocommerce-mercadopago'),
-            'gateway_method_description'                => __('Payments without leaving your store with our customizable checkout.', 'woocommerce-mercadopago'),
-            'header_title'                              => __('Transparent Checkout | Credit card', 'woocommerce-mercadopago'),
+            'gateway_method_description'                => __('Payments without leaving your store with our customizable checkout', 'woocommerce-mercadopago'),
+            'header_title_ALL'                          => __('Transparent Checkout | Credit or debit card', 'woocommerce-mercadopago'),
+            'header_title_MLB'                          => __('Transparent Checkout | Credit card', 'woocommerce-mercadopago'),
             'header_description'                        => __('With the Transparent Checkout, you can sell inside your store environment, without redirection and with the security from Mercado Pago.', 'woocommerce-mercadopago'),
             'card_settings_title'                       => __('Mercado Pago Plugin general settings', 'woocommerce-mercadopago'),
             'card_settings_subtitle'                    => __('Set the deadlines and fees, test your store or access the Plugin manual.', 'woocommerce-mercadopago'),
             'card_settings_button_text'                 => __('Go to Settings', 'woocommerce-mercadopago'),
             'enabled_title'                             => __('Enable the checkout', 'woocommerce-mercadopago'),
             'enabled_subtitle'                          => __('By disabling it, you will disable all credit cards payments from Mercado Pago Transparent Checkout.', 'woocommerce-mercadopago'),
-            'enabled_descriptions_enabled'              => $enabledDescriptionsEnabled,
-            'enabled_descriptions_disabled'             => $enabledDescriptionsDisabled,
+            'enabled_descriptions_enabled_ALL'          => $enabledDescriptionsEnabledAll,
+            'enabled_descriptions_disabled_ALL'         => $enabledDescriptionsDisabledAll,
+            'enabled_descriptions_enabled_MLB'          => $enabledDescriptionsEnabledMLB,
+            'enabled_descriptions_disabled_MLB'         => $enabledDescriptionsDisabledMLB,
             'title_title'                               => __('Title in the store Checkout', 'woocommerce-mercadopago'),
             'title_description'                         => __('Change the display text in Checkout, maximum characters: 85', 'woocommerce-mercadopago'),
-            'title_default'                             => __('Credit and debit cards', 'woocommerce-mercadopago'),
             'title_desc_tip'                            => __('The text inserted here will not be translated to other languages', 'woocommerce-mercadopago'),
             'card_info_fees_title'                      => __('Installments Fees', 'woocommerce-mercadopago'),
             'card_info_fees_subtitle'                   => __('Set installment fees and whether they will be charged from the store or from the buyer.', 'woocommerce-mercadopago'),
@@ -1397,6 +1415,26 @@ class AdminTranslations
             'MLM' => __('Mexico', 'woocommerce-mercadopago'),
             'MPE' => __('Peru', 'woocommerce-mercadopago'),
             'MLU' => __('Uruguay', 'woocommerce-mercadopago'),
+        ];
+    }
+
+    private function setRefundTranslations(): void
+    {
+        $this->refund = [
+            'amount_must_be_positive'   => __('The amount entered for the refund must be greater than zero. Please enter the amount you need to refund.', 'woocommerce-mercadopago'),
+            'forbidden'                 => __('Something went wrong. Please contact the Mercado Pago support team and we will help you resolve it.', 'woocommerce-mercadopago'),
+            'insufficient_funds'        => __('You do not have sufficient balance in your account. To make the refund, please deposit money in your account.', 'woocommerce-mercadopago'),
+            'internal_server_error'     => __('Something went wrong. The refund could not be processed at this time. Please try again later.', 'woocommerce-mercadopago'),
+            'invalid_payment_status'    => __('You can only refund a payment that has already been approved. Please wait for approval and try again.', 'woocommerce-mercadopago'),
+            'invalid_refund_amount'     => __('The requested refund amount is greater than the total amount of the order. Please check the amount and try again.', 'woocommerce-mercadopago'),
+            'invalid_request'           => __('Something went wrong. Please contact the Mercado Pago support team and we will help you resolve it.', 'woocommerce-mercadopago'),
+            'no_permission'             => __('You do not have permission to process a refund. Please check your access to the site and try again.', 'woocommerce-mercadopago'),
+            'not_found'                 => __('The refund could not be processed. Please try again or contact the Mercado Pago support team.', 'woocommerce-mercadopago'),
+            'payment_not_found'         => __('The refund could not be processed. Please try again or contact the Mercado Pago support team.', 'woocommerce-mercadopago'),
+            'payment_too_old'           => __('This payment is too old to be refunded. If you need help, please contact the Mercado Pago support team.', 'woocommerce-mercadopago'),
+            'unauthorized'              => __('Your access credentials are incorrect or have expired. Please renew your credentials in the Mercado Pago settings and try again.', 'woocommerce-mercadopago'),
+            'unknown_error'             => __('Something went wrong. Please contact the Mercado Pago support team and we will help you resolve it.', 'woocommerce-mercadopago'),
+            'supertoken_not_supported'  => __('This payment was made using Fast Pay with Mercado Pago and does not yet support refunds through the WooCommerce order page. Please process the refund directly from your Mercado Pago payment details page.', 'woocommerce-mercadopago'),
         ];
     }
 }

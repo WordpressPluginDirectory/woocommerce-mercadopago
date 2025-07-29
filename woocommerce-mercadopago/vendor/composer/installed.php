@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'mp-plugins/php-sdk' => array(
-            'pretty_version' => '3.1.0',
-            'version' => '3.1.0.0',
-            'reference' => 'f6e4cbfb11ce59e2cb8ae2d030ef844318f94105',
+            'pretty_version' => '3.3.0',
+            'version' => '3.3.0.0',
+            'reference' => '796025bed911e2734c177a35ce35591d1d04038a',
             'type' => 'library',
             'install_path' => __DIR__ . '/../mp-plugins/php-sdk',
             'aliases' => array(),

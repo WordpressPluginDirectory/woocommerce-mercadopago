@@ -4,6 +4,7 @@ namespace MercadoPago\Woocommerce\Order;
 
 use MercadoPago\Woocommerce\Helpers\Date;
 use MercadoPago\Woocommerce\Hooks\OrderMeta;
+use MercadoPago\Woocommerce\Libraries\Logs\Logs;
 use WC_Order;
 
 if (!defined('ABSPATH')) {
@@ -30,6 +31,8 @@ class OrderMetadata
 
     private const PAYMENTS_IDS = '_Mercado_Pago_Payment_IDs';
 
+    private const MERCADOPAGO_PAYMENT = 'Mercado Pago - Payment';
+
     private const PAYMENT_DETAILS = 'PAYMENT_ID: DATE';
 
     private const TICKET_TRANSACTION_DETAILS = '_transaction_details_ticket';
@@ -46,16 +49,24 @@ class OrderMetadata
 
     private const SYNC_CRON_ERROR = 'mp_sync_order_error_count';
 
+    private const CHECKOUT_TYPE = 'checkout_type';
+
+    private const CHECKOUT = 'checkout';
+
     private OrderMeta $orderMeta;
+
+    private Logs $logs;
 
     /**
      * Metadata constructor
      *
      * @param OrderMeta $orderMeta
+     * @param Logs $logs
      */
-    public function __construct(OrderMeta $orderMeta)
+    public function __construct(OrderMeta $orderMeta, Logs $logs)
     {
         $this->orderMeta = $orderMeta;
+        $this->logs = $logs;
     }
 
     /**
@@ -361,10 +372,10 @@ class OrderMetadata
      */
     public function setCustomMetadata(WC_Order $order, $data): void
     {
-        $installments      = (float) $data['installments'];
-        $installmentAmount = (float) $data['transaction_details']['installment_amount'];
-        $totalPaidAmount   = (float) $data['transaction_details']['total_paid_amount'];
-        $transactionAmount = (float) $data['transaction_amount'];
+        $installments = isset($data['installments']) ? (float) $data['installments'] : 0.0;
+        $installmentAmount = isset($data['transaction_details']['installment_amount']) ? (float) $data['transaction_details']['installment_amount'] : 0.0;
+        $totalPaidAmount = isset($data['transaction_details']['total_paid_amount']) ? (float) $data['transaction_details']['total_paid_amount'] : 0.0;
+        $transactionAmount = isset($data['transaction_amount']) ? (float) $data['transaction_amount'] : 0.0;
 
         $this->setInstallmentsData($order, $installments);
         $this->setTransactionDetailsData($order, $installmentAmount);
@@ -388,6 +399,37 @@ class OrderMetadata
         $this->initializePaymentMetadata($order, $paymentData);
         $this->updatePaymentDetails($order, $paymentData);
         $this->updateLatestPaymentId($order);
+        $this->addFeeDetails($order, $paymentData);
+        $this->setMercadoPagoPaymentId($order, [$paymentData['id']]);
+    }
+
+    /**
+     * Set payment id in the order
+     *
+     * @param WC_Order $order
+     * @param array $paymentsId [1234567890]
+     *
+     * @example Mercado Pago - Payment 1234567890
+     *
+     * @return void
+     */
+    public function setMercadoPagoPaymentId(WC_Order $order, array $paymentsId)
+    {
+        $paymentsIdMetadata = $this->getPaymentsIdMeta($order);
+
+        if (empty($paymentsIdMetadata)) {
+            $this->setPaymentsIdData($order, implode(', ', $paymentsId));
+        }
+
+        foreach ($paymentsId as $paymentId) {
+            $date                  = Date::getNowDate('Y-m-d H:i:s');
+            $paymentDetailKey      = self::MERCADOPAGO_PAYMENT . " $paymentId";
+            $paymentDetailMetadata = $this->orderMeta->get($order, $paymentDetailKey);
+
+            if (empty($paymentDetailMetadata)) {
+                $this->orderMeta->update($order, $paymentDetailKey, "[Date $date]");
+            }
+        }
     }
 
     /**
@@ -403,8 +445,35 @@ class OrderMetadata
         $paymentsIdMetadata = $this->getPaymentsIdMeta($order);
 
         if (empty($paymentsIdMetadata)) {
-            $this->setPaymentsIdData($order, $paymentData['id']);
+            $paymentId = $this->extractPaymentId($paymentData);
+            if (!empty($paymentId)) {
+                $this->setPaymentsIdData($order, $paymentId);
+            }
         }
+    }
+
+    /**
+     * Extract payment ID from payment data array safely
+     *
+     * Handles both associative arrays ['id' => '123'] and indexed arrays ['123']
+     *
+     * @param array $paymentData
+     *
+     * @return string|null
+     */
+    private function extractPaymentId(array $paymentData): ?string
+    {
+        if (isset($paymentData['id']) && !empty($paymentData['id'])) {
+            return (string) $paymentData['id'];
+        }
+
+        if (isset($paymentData[0]) && !empty($paymentData[0]) && is_numeric($paymentData[0])) {
+            return (string) $paymentData[0];
+        }
+
+        $this->logs->file->error('Invalid payment data format in extractPaymentId', 'OrderMetadata', $paymentData);
+
+        return null;
     }
 
     /**
@@ -439,11 +508,14 @@ class OrderMetadata
      */
     private function formatPaymentDetail(array $paymentData): string
     {
-        if (empty($paymentData['id']) || empty($paymentData['date_created'])) {
+        $paymentId = $paymentData['id'] ?? null;
+        $dateCreated = $paymentData['date_created'] ?? null;
+
+        if (empty($paymentId) || empty($dateCreated)) {
             return '';
         }
 
-        return "{$paymentData['id']}: {$paymentData['date_created']}";
+        return "{$paymentId}: {$dateCreated}";
     }
 
     /**
@@ -465,6 +537,33 @@ class OrderMetadata
 
         if ($latestPayment !== null) {
             $this->orderMeta->update($order, self::PAYMENTS_IDS, $latestPayment);
+        }
+    }
+
+    /**
+     * Add fee details to the order metadata
+     *
+     * @param WC_Order $order
+     * @param array $paymentData
+     *
+     * @example mercadopago_fee: 3.3
+     *
+     * @return void
+     */
+    private function addFeeDetails(WC_Order $order, array $paymentData): void
+    {
+        $feeDetails = $paymentData['fee_details'] ?? [];
+
+        if (empty($feeDetails)) {
+            return;
+        }
+
+        foreach ($feeDetails as $feeDetail) {
+            if (is_array($feeDetail) && isset($feeDetail['type'], $feeDetail['amount'])) {
+                $this->orderMeta->update($order, $feeDetail['type'], $feeDetail['amount']);
+            } else {
+                $this->logs->file->error('Invalid fee detail format', 'OrderMetadata', $feeDetail);
+            }
         }
     }
 
@@ -501,7 +600,7 @@ class OrderMetadata
         foreach ($paymentDetails as $payment) {
             $parts = explode(': ', $payment);
             if (count($parts) !== 2) {
-                error_log('Mercado Pago: Failed to get previous payments. Invalid format: ' . $payment);
+                $this->logs->file->error('Failed to get previous payments. Invalid format', 'OrderMetadata', ['payment' => $payment]);
                 return null;
             }
 
@@ -514,6 +613,49 @@ class OrderMetadata
         }
 
         return $latestPayment;
+    }
+
+    /**
+     * Set supertoken metadata in the order
+     *
+     * @param WC_Order $order
+     * @param mixed $data
+     * @param mixed $transactionMetadata
+     *
+     * @return void
+     */
+    public function setSupertokenMetadata(WC_Order $order, $data, $transactionMetadata): void
+    {
+        if (isset($data['installments']) && isset($data['transaction_details']['installment_amount']) && $data['transaction_details']['installment_amount'] > 0) {
+            $installments      = (float) $data['installments'];
+            $installmentAmount = (float) $data['transaction_details']['installment_amount'];
+
+            $this->setInstallmentsData($order, $installments);
+            $this->setTransactionDetailsData($order, $installmentAmount);
+        }
+
+        $totalPaidAmount   = (float) $data['transaction_details']['total_paid_amount'];
+        $transactionAmount = (float) $data['transaction_amount'];
+
+        $this->setTransactionAmountData($order, $transactionAmount);
+        $this->setTotalPaidAmountData($order, $totalPaidAmount);
+        $this->updatePaymentsOrderMetadata($order, ['id' => $data['id']]);
+        $this->setCheckoutDetails($order, $transactionMetadata);
+        $order->save();
+    }
+
+    /**
+     * Set checkout details in the order
+     *
+     * @param WC_Order $order
+     * @param mixed $transactionMetadata
+     *
+     * @return void
+     */
+    private function setCheckoutDetails(WC_Order $order, $transactionMetadata): void
+    {
+        $this->orderMeta->update($order, self::CHECKOUT, $transactionMetadata->checkout);
+        $this->orderMeta->update($order, self::CHECKOUT_TYPE, $transactionMetadata->checkout_type);
     }
 
     /**
