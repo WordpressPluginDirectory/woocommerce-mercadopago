@@ -11,7 +11,6 @@ use MercadoPago\Woocommerce\Helpers\Template;
  * @var string $wallet_button
  * @var string $wallet_button_image
  * @var string $wallet_button_title
- * @var string $wallet_button_description
  * @var string $site_id
  * @var string $card_number_input_label
  * @var string $card_number_input_helper
@@ -62,15 +61,11 @@ if (!defined('ABSPATH')) {
                 <div class='mp-wallet-button-container'>
 
                     <div class='mp-wallet-button-title'>
-                        <span><?= esc_html($wallet_button_title); ?></span>
-                    </div>
-
-                    <div class='mp-wallet-button-description'>
-                        <?= esc_html($wallet_button_description); ?>
+                        <span><?= wp_kses_post($wallet_button_title); ?></span>
                     </div>
 
                     <div class='mp-wallet-button-button'>
-                        <button id="mp-wallet-button" onclick="submitWalletButton(event)">
+                        <button id="mp-wallet-button">
                             <img src="<?= esc_url($wallet_button_image); ?>">
                         </button>
                     </div>
@@ -242,8 +237,15 @@ if (!defined('ABSPATH')) {
 <script type="text/javascript">
     function submitWalletButton(event) {
         event.preventDefault();
+        
+        if (window.mpSuperTokenTriggerHandler) {
+            window.mpSuperTokenTriggerHandler.onTriggerWalletButton();
+            return;
+        }
+
         jQuery('#mp_checkout_type').val('wallet_button');
         jQuery('form.checkout, form#order_review').submit();
     }
-</script>
 
+    document.getElementById('mp-wallet-button')?.addEventListener('click', submitWalletButton);
+</script>
