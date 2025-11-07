@@ -203,7 +203,7 @@ abstract class AbstractBlock extends AbstractPaymentMethodType implements Mercad
         }
 
         if (isset($this->gateway)) {
-            $action  = $this->mercadopago->helpers->session->getSession(self::ACTION_SESSION_KEY);
+            $action = $this->mercadopago->helpers->session->getSession(self::ACTION_SESSION_KEY);
 
             if ($action == 'add') {
                 $this->mercadopago->helpers->cart->addDiscountAndCommissionOnFeesFromBlocks($this->gateway);
@@ -213,5 +213,17 @@ abstract class AbstractBlock extends AbstractPaymentMethodType implements Mercad
                 $this->mercadopago->helpers->cart->removeDiscountAndCommissionOnFeesFromBlocks($this->gateway);
             }
         }
+    }
+
+    /**
+     * Get amount and currency
+     *
+     * @param string $key 'amount' or 'currency' to get just one value
+     *
+     * @return array|float|null
+     */
+    protected function getCurrencyRatio(?string $gateway_id = '')
+    {
+        return $this->mercadopago->helpers->currency->onlyGetRatio($gateway_id);
     }
 }

@@ -233,6 +233,7 @@ class CustomGateway extends AbstractGateway
                 'intl'              => $this->countryConfigs['intl'],
                 'site_id'           => $this->countryConfigs['site_id'],
                 'currency'          => $this->countryConfigs['currency'],
+                'currency_code' => $this->mercadopago->helpers->currency->getCurrencyCode($this),
                 'theme'             => get_stylesheet(),
                 'location'          => '/checkout',
                 'plugin_version'    => MP_VERSION,
@@ -294,6 +295,11 @@ class CustomGateway extends AbstractGateway
     /**
      * Register all super token scripts
      *
+     * This method is used to register all super token scripts.
+     *
+     * Should not be tested because it is only used to register scripts.
+     *
+     * @codeCoverageIgnore
      * @return void
      */
     public function registerSuperTokenScripts()
@@ -322,10 +328,16 @@ class CustomGateway extends AbstractGateway
         );
 
         $this->mercadopago->hooks->scripts->registerCheckoutScript(
+            'wc_mercadopago_supertoken_trigger_fields_strategy',
+            $this->mercadopago->helpers->url->getJsAsset('checkouts/super-token/triggers/mp-super-token-trigger-fields-strategy'),
+        );
+
+        $this->mercadopago->hooks->scripts->registerCheckoutScript(
             'wc_mercadopago_supertoken_trigger_handler',
             $this->mercadopago->helpers->url->getJsAsset('checkouts/super-token/entities/super-token-trigger-handler'),
             [
                 'current_user_email' => wp_get_current_user()->user_email ?? '',
+                'wallet_button_enabled' => $this->getWalletButtonEnabled(),
             ]
         );
 
@@ -335,6 +347,7 @@ class CustomGateway extends AbstractGateway
             [
                 'yellow_wallet_path' => $this->mercadopago->helpers->url->getImageAsset('icons/icon-yellow-wallet'),
                 'white_card_path' => $this->mercadopago->helpers->url->getImageAsset('icons/icon-white-card'),
+                'new_mp_logo_path' => $this->mercadopago->helpers->url->getImageAsset('logos/new-mp-logo'),
                 'payment_methods_order' => $this->mercadopago->hooks->options->getGatewayOption($this, 'payment_methods_order', 'cards_first'),
                 'payment_methods_thumbnails' => $this->mercadopago->sellerConfig->getPaymentMethodsThumbnails(),
                 'intl'              => $this->countryConfigs['intl'],
@@ -343,7 +356,13 @@ class CustomGateway extends AbstractGateway
                 'payment_methods_list_text' => $this->storeTranslations['payment_methods_list_text'],
                 'last_digits_text' => $this->storeTranslations['last_digits_text'],
                 'new_card_text' => $this->storeTranslations['new_card_text'],
-                'account_money_text' => $this->storeTranslations['account_money_text'],
+                'account_money_text' => $this->storeTranslations['locale'] === 'en-US'
+                    ? $this->storeTranslations['account_money_text'] . ' in Mercado&nbsp;Pago'
+                    : $this->storeTranslations['account_money_text'],
+                'account_money_wallet_with_investment_text' => $this->storeTranslations['account_money_wallet_with_investment_text'],
+                'account_money_wallet_text' => $this->storeTranslations['account_money_wallet_text'],
+                'account_money_investment_text' => $this->storeTranslations['account_money_investment_text'],
+                'account_money_available_text' => $this->storeTranslations['account_money_available_text'],
                 'interest_free_part_one_text' => $this->storeTranslations['interest_free_part_one_text'],
                 'interest_free_part_two_text' => $this->storeTranslations['interest_free_part_two_text'],
                 'interest_free_option_text' => $this->storeTranslations['interest_free_option_text'],
@@ -373,6 +392,11 @@ class CustomGateway extends AbstractGateway
                     ],
                 ],
                 'mercado_pago_card_name' => $this->storeTranslations['mercado_pago_card_name'],
+                'mercadopago_privacy_policy' => str_replace(
+                    '{link}',
+                    $this->mercadopago->helpers->links->getPrivacyPolicyLink($this->countryConfigs['site_id']),
+                    $this->storeTranslations['mercadopago_privacy_policy']
+                ),
             ]
         );
 
@@ -442,6 +466,11 @@ class CustomGateway extends AbstractGateway
             'message_error_amount'                    => $this->storeTranslations['message_error_amount'],
             'security_code_tooltip_text_3_digits'     => $this->storeTranslations['security_code_tooltip_text_3_digits'],
             'placeholders_cardholder_name'            => $this->storeTranslations['placeholders_cardholder_name'],
+            'mercadopago_privacy_policy' => str_replace(
+                '{link}',
+                $this->mercadopago->helpers->links->getPrivacyPolicyLink($this->countryConfigs['site_id']),
+                $this->storeTranslations['mercadopago_privacy_policy']
+            ),
         ];
     }
 
@@ -452,20 +481,6 @@ class CustomGateway extends AbstractGateway
         switch ($checkout['checkout_type']) {
             case 'wallet_button':
                 $this->mercadopago->logs->file->info('Preparing to render wallet button checkout', self::LOG_SOURCE);
-
-                // Store checkout session data for wallet button
-                $checkoutSessionData = [];
-                if (isset($_POST['mercadopago_checkout_session'])) {
-                    // Classic Checkout
-                    $checkoutSessionData = Form::sanitizedPostData('mercadopago_checkout_session');
-                } else {
-                    // Blocks Checkout
-                    $checkoutSessionData = $this->processBlocksCheckoutData('mercadopago_checkout_session', Form::sanitizedPostData());
-                }
-
-                if (!empty($checkoutSessionData)) {
-                    $this->mercadopago->helpers->session->setSession('mp_wallet_checkout_session_' . $order->get_id(), $checkoutSessionData);
-                }
 
                 return [
                     'result'   => 'success',
@@ -581,19 +596,11 @@ class CustomGateway extends AbstractGateway
     public function renderOrderForm($orderId): void
     {
         if ($this->mercadopago->helpers->url->validateQueryVar('wallet_button')) {
-            $order             = wc_get_order($orderId);
-            $checkoutSessionData = $this->mercadopago->helpers->session->getSession('mp_wallet_checkout_session_' . $orderId);
+            $order = wc_get_order($orderId);
 
             $this->transaction = new WalletButtonTransaction($this, $order);
 
-            // Set checkout data if available
-            if (!empty($checkoutSessionData)) {
-                $this->transaction->setCheckoutData($checkoutSessionData);
-            }
-
             $preference = $this->transaction->createPreference();
-
-            $this->mercadopago->helpers->session->deleteSession('mp_wallet_checkout_session_' . $orderId);
 
             $this->mercadopago->hooks->template->getWoocommerceTemplate(
                 'public/receipt/preference-modal.php',
