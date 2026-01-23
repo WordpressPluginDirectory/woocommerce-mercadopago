@@ -3,6 +3,7 @@
 namespace MercadoPago\Woocommerce\Gateways;
 
 use Exception;
+use MercadoPago\Woocommerce\Exceptions\InvalidCheckoutDataException;
 use MercadoPago\Woocommerce\Exceptions\ResponseStatusException;
 use MercadoPago\Woocommerce\Exceptions\RejectedPaymentException;
 use MercadoPago\Woocommerce\Helpers\Country;
@@ -95,6 +96,7 @@ class PixGateway extends AbstractGateway
         $this->mercadopago->helpers->currency->handleCurrencyNotices($this);
 
         $this->orderMeta = new OrderMeta();
+        $this->paymentMethodName = self::ID;
     }
 
     public function getCheckoutName(): string
@@ -168,10 +170,11 @@ class PixGateway extends AbstractGateway
 
         if (!filter_var($order->get_billing_email(), FILTER_VALIDATE_EMAIL)) {
             return $this->processReturnFail(
-                new Exception('Email not valid on ' . __METHOD__),
-                'buyer_default',
+                new InvalidCheckoutDataException('Email not valid on ' . __METHOD__),
+                'invalid_email',
                 self::LOG_SOURCE,
-                (array) $order
+                (array) $order,
+                true
             );
         }
 

@@ -11,6 +11,7 @@ use MercadoPago\Woocommerce\WoocommerceMercadoPago;
 use MercadoPago\Woocommerce\Interfaces\MercadoPagoGatewayInterface;
 use MercadoPago\Woocommerce\Notification\NotificationFactory;
 use MercadoPago\Woocommerce\Exceptions\RejectedPaymentException;
+use MercadoPago\Woocommerce\Libraries\Metrics\Datadog;
 use Mockery\Exception\MockeryExceptionInterface;
 use WC_Payment_Gateway;
 use MercadoPago\Woocommerce\Helpers\RefundStatusCodes;
@@ -28,6 +29,8 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
     protected const ENABLED_OPTION = 'enabled';
 
     protected const ENABLED_DEFAULT = 'no';
+
+    protected string $paymentMethodName = '';
 
     public string $iconAdmin;
 
@@ -65,7 +68,10 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
 
     public $transaction;
 
+    public Datadog $datadog;
+
     /**
+     * @codeCoverageIgnore
      * Abstract Gateway constructor
      * @throws Exception
      */
@@ -74,7 +80,7 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
         global $mercadopago;
 
         $this->mercadopago = $mercadopago;
-
+        $this->datadog = Datadog::getInstance();
         if (!$this->mercadopago->booted()) {
             return;
         }
@@ -90,6 +96,7 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
         $this->init_settings();
         $this->loadResearchComponent();
         $this->loadMelidataStoreScripts();
+        $this->loadMpWooCommerceScripts();
     }
 
     abstract public function getCheckoutName(): string;
@@ -573,6 +580,11 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
         );
     }
 
+    public function loadMpWooCommerceScripts(): void
+    {
+        $this->mercadopago->hooks->scripts->registerMpBehaviorTrackingScript();
+    }
+
     /**
      * Load melidata script on store
      *
@@ -623,38 +635,20 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
 
         $this->mercadopago->logs->file->error("Message: {$e->getMessage()} \n\n\nStacktrace: {$e->getTraceAsString()} \n\n\n", $source, $context);
 
-        $errorMessages = [
-            "400"                              => $this->mercadopago->storeTranslations->buyerRefusedMessages['buyer_default'],
-            "exception"                        => $this->mercadopago->storeTranslations->buyerRefusedMessages['buyer_default'],
-            "Invalid test user email"          => $this->mercadopago->storeTranslations->commonMessages['invalid_users'],
-            "Invalid users involved"           => $this->mercadopago->storeTranslations->commonMessages['invalid_users'],
-            "Invalid operators users involved" => $this->mercadopago->storeTranslations->commonMessages['invalid_operators'],
-            "Invalid card_number_validation"   => $this->mercadopago->storeTranslations->customCheckout['card_number_validation_error'],
-            "cho_form_error"                   => $this->mercadopago->storeTranslations->commonMessages['cho_form_error'],
-            'buyer_default'                    => $this->mercadopago->storeTranslations->buyerRefusedMessages['buyer_default']
-        ];
+        $originalMessage = $message;
 
-        $messageFound = false;
-        foreach ($errorMessages as $keyword => $replacement) {
-            if (strpos($message, $keyword) !== false) {
-                $message = $replacement;
-                $messageFound = true;
-                break;
-            }
-        }
+        $translatedMessage = $this->mercadopago->helpers->errorMessages->findErrorMessage($message);
 
-        if (!$messageFound) {
-            $message = $errorMessages['exception'];
-        }
+        $this->datadog->sendEvent('woo_checkout_error', $translatedMessage, $originalMessage, $this->paymentMethodName);
 
         if ($notice) {
-            $this->mercadopago->helpers->notices->storeNotice($message, 'error');
+            $this->mercadopago->helpers->notices->storeNotice($translatedMessage, 'error');
         }
 
         return [
             'result'   => 'fail',
             'redirect' => '',
-            'message'  => $message,
+            'message'  => $translatedMessage,
         ];
     }
 
@@ -961,23 +955,26 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
         if ($response['status'] === 'rejected') {
             $statusDetail = $response['status_detail'];
 
-            $errorMessage = $this->getRejectedPaymentErrorMessage($statusDetail);
+            $errorMessage = $this->getRejectedPaymentErrorKey($statusDetail);
 
             throw new RejectedPaymentException($errorMessage);
         }
     }
 
     /**
-     * Get payment rejected error message
+     * Get payment rejected error message translation key
      *
      * @param string $statusDetail statusDetail.
      *
      * @return string
      */
-    public function getRejectedPaymentErrorMessage(string $statusDetail): string
+    public function getRejectedPaymentErrorKey(string $statusDetail): string
     {
-        return $this->mercadopago->storeTranslations->buyerRefusedMessages[ 'buyer_' . $statusDetail ] ??
-               $this->mercadopago->storeTranslations->buyerRefusedMessages['buyer_default'];
+        $key = 'buyer_' . $statusDetail;
+        if (isset($this->mercadopago->storeTranslations->buyerRefusedMessages[$key])) {
+            return $key;
+        }
+        return 'buyer_default';
     }
 
     /**

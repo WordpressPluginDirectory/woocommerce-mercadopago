@@ -41,13 +41,20 @@ if (!defined('ABSPATH')) {
 
 ?>
 <div class="mp-checkout-custom-load">
-    <div class="spinner-card-form"></div>
+    <svg class="spinner-card-form" viewBox="0 0 50 50">
+        <circle class="spinner-path" cx="25" cy="25" r="20" fill="none" stroke-width="3"></circle>
+    </svg>
 </div>
-<div id="mp-checkout-custom-container" class='mp-checkout-container mp-display-none'>
+<div id="mp-checkout-custom-container" class='mp-checkout-container mp-hidden mp-display-none'>
     <?php if ($amount === null) : ?>
         <?php Template::render('public/checkouts/alert-message', ['message' => $message_error_amount]) ?>
     <?php else : ?>
-        <div class='mp-checkout-custom-container'>
+        <div class="mp-checkout-custom-container">
+            <div class="mp-checkout-custom-card-flags">
+                <?php foreach ($cardFlagIconUrls as $cardFlagIconUrl) : ?>
+                    <img src="<?= esc_url($cardFlagIconUrl); ?>">
+                <?php endforeach; ?>
+            </div>
             <?php if ($test_mode) : ?>
                 <test-mode
                     title="<?= esc_html($test_mode_title) ?>"
@@ -60,20 +67,21 @@ if (!defined('ABSPATH')) {
 
             <?php if ($wallet_button_enabled) : ?>
                 <div class="mp-wallet-button-container-wrapper">
-                <div class='mp-wallet-button-container'>
-                    <div class='mp-wallet-button-title'>
-                        <span><?= wp_kses_post($wallet_button_title); ?></span>
-                    </div>
+                    <div class='mp-wallet-button-container'>
+                        <div class='mp-wallet-button-title'>
+                            <span><?= wp_kses_post($wallet_button_title); ?></span>
+                        </div>
 
-                    <div class='mp-wallet-button-button'>
-                        <button id="mp-wallet-button">
-                            <img src="<?= esc_url($wallet_button_image); ?>">
-                        </button>
-                    </div>
+                        <div class='mp-wallet-button-button'>
+                            <button id="mp-wallet-button">
+                                <img src="<?= esc_url($wallet_button_image); ?>">
+                            </button>
+                        </div>
 
-                    <footer class='mp-privacy-policy-footer'>
-                        <span><?= wp_kses_post($mercadopago_privacy_policy); ?></span>
-                    </footer>
+                        <footer class='mp-privacy-policy-footer'>
+                            <span><?= wp_kses_post($mercadopago_privacy_policy); ?></span>
+                        </footer>
+                    </div>
                 </div>
             <?php endif; ?>
 
@@ -113,6 +121,13 @@ if (!defined('ABSPATH')) {
                             data-checkout="cardholderName"
                         />
 
+                        <input-helper
+                            isVisible=true
+                            type="info"
+                            message="<?= esc_html($card_holder_input_helper_info); ?>"
+                            input-id="mp-card-holder-name-helper-info"
+                        >
+                        </input-helper>
                         <input-helper
                             isVisible=false
                             type="error"
@@ -211,7 +226,6 @@ if (!defined('ABSPATH')) {
                     <div id="mp-checkout-custom-installments-container" class="mp-checkout-custom-installments-container"></div>
 
                     <select
-                        style="display: none;"
                         data-checkout="installments"
                         name="installments"
                         id="form-checkout__installments"
@@ -232,7 +246,7 @@ if (!defined('ABSPATH')) {
     <input type="hidden" id="cardExpirationMonth" data-checkout="cardExpirationMonth"/>
     <input type="hidden" id="cardExpirationYear" data-checkout="cardExpirationYear"/>
     <input type="hidden" id="cardTokenId" name="mercadopago_custom[token]"/>
-    <input type="hidden" id="cardInstallments" name="mercadopago_custom[installments]"/>
+    <input type="hidden" id="cardInstallments" name="mercadopago_custom[installments]" value="1"/>
     <input type="hidden" id="mpCardSessionId" name="mercadopago_custom[session_id]" />
     <input type="hidden" id="paymentTypeId" name="mercadopago_custom[payment_type_id]"/>
     <input type="hidden" id="payerDocNumber" name="mercadopago_custom[doc_number]" />
@@ -242,11 +256,6 @@ if (!defined('ABSPATH')) {
 <script type="text/javascript">
     function submitWalletButton(event) {
         event.preventDefault();
-
-        if (window.mpSuperTokenTriggerHandler) {
-            window.mpSuperTokenTriggerHandler.onTriggerWalletButton();
-            return;
-        }
 
         jQuery('#mp_checkout_type').val('wallet_button');
         jQuery('form.checkout, form#order_review').submit();

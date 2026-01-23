@@ -142,6 +142,7 @@ return array(
     'MercadoPago\\Woocommerce\\Helpers\\Date' => $baseDir . '/src/Helpers/Date.php',
     'MercadoPago\\Woocommerce\\Helpers\\Device' => $baseDir . '/src/Helpers/Device.php',
     'MercadoPago\\Woocommerce\\Helpers\\Environment' => $baseDir . '/src/Helpers/Environment.php',
+    'MercadoPago\\Woocommerce\\Helpers\\ErrorMessages' => $baseDir . '/src/Helpers/ErrorMessages.php',
     'MercadoPago\\Woocommerce\\Helpers\\Form' => $baseDir . '/src/Helpers/Form.php',
     'MercadoPago\\Woocommerce\\Helpers\\Gateways' => $baseDir . '/src/Helpers/Gateways.php',
     'MercadoPago\\Woocommerce\\Helpers\\I18n' => $baseDir . '/src/Helpers/I18n.php',

@@ -7,7 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInit3fbec3256bf8d1ab9d096a5761d3dd59
 {
     public static $prefixLengthsPsr4 = array (
-        'M' => 
+        'M' =>
         array (
             'MercadoPago\\Woocommerce\\' => 24,
             'MercadoPago\\PP\\Sdk\\' => 19,
@@ -15,11 +15,11 @@ class ComposerStaticInit3fbec3256bf8d1ab9d096a5761d3dd59
     );
 
     public static $prefixDirsPsr4 = array (
-        'MercadoPago\\Woocommerce\\' => 
+        'MercadoPago\\Woocommerce\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
-        'MercadoPago\\PP\\Sdk\\' => 
+        'MercadoPago\\PP\\Sdk\\' =>
         array (
             0 => __DIR__ . '/..' . '/mp-plugins/php-sdk/src',
         ),
@@ -162,6 +162,7 @@ class ComposerStaticInit3fbec3256bf8d1ab9d096a5761d3dd59
         'MercadoPago\\Woocommerce\\Helpers\\Date' => __DIR__ . '/../..' . '/src/Helpers/Date.php',
         'MercadoPago\\Woocommerce\\Helpers\\Device' => __DIR__ . '/../..' . '/src/Helpers/Device.php',
         'MercadoPago\\Woocommerce\\Helpers\\Environment' => __DIR__ . '/../..' . '/src/Helpers/Environment.php',
+        'MercadoPago\\Woocommerce\\Helpers\\ErrorMessages' => __DIR__ . '/../..' . '/src/Helpers/ErrorMessages.php',
         'MercadoPago\\Woocommerce\\Helpers\\Form' => __DIR__ . '/../..' . '/src/Helpers/Form.php',
         'MercadoPago\\Woocommerce\\Helpers\\Gateways' => __DIR__ . '/../..' . '/src/Helpers/Gateways.php',
         'MercadoPago\\Woocommerce\\Helpers\\I18n' => __DIR__ . '/../..' . '/src/Helpers/I18n.php',
