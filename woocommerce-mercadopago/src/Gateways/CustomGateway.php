@@ -596,14 +596,50 @@ class CustomGateway extends AbstractGateway
                 $this->mercadopago->logs->file->info('Preparing to get response of custom super token checkout', self::LOG_SOURCE);
                 if (
                     !Arrays::anyEmpty($checkout, [
-                        'token',
+                        'authorized_pseudotoken',
                         'amount',
                         'payment_method_id',
                         'payment_type_id',
                     ])
                     && ($checkout['payment_type_id'] != 'credit_card' || (!empty($checkout['installments']) && $checkout['installments'] > 0))
                 ) {
+                    $checkout['super_token_validation'] = $checkout['super_token_validation'] ?? false;
+
                     $this->transaction = new SupertokenTransaction($this, $order, $checkout);
+                    $flowId = $this->transaction->getCheckoutSessionData()['_mp_flow_id'] ?? 'Unknown';
+                    $checkoutCustomToken = $checkout['token'] ?? null;
+                    $authorizedPseudotoken = $checkout['authorized_pseudotoken'] ?? null;
+
+                    if ($authorizedPseudotoken !== $checkoutCustomToken) {
+                        $this->datadog->sendEvent(
+                            'authorized_pseudotoken_mismatch',
+                            $checkoutCustomToken,
+                            $authorizedPseudotoken,
+                            'super_token',
+                            [
+                                'site_id' => $this->mercadopago->sellerConfig->getSiteId(),
+                                'environment' => $this->mercadopago->storeConfig->isTestMode() ? 'homol' : 'prod',
+                                'cust_id' => $this->mercadopago->sellerConfig->getCustIdFromAT(),
+                                'sdk_instance_id' => $flowId,
+                            ]
+                        );
+                    }
+
+                    if ($checkout['super_token_validation'] === 'false') {
+                        $this->datadog->sendEvent(
+                            'super_token_validation_failed',
+                            'true',
+                            'INCOMPLETE_SUPER_TOKEN_VALIDATION',
+                            'super_token',
+                            [
+                                'site_id' => $this->mercadopago->sellerConfig->getSiteId(),
+                                'environment' => $this->mercadopago->storeConfig->isTestMode() ? 'homol' : 'prod',
+                                'cust_id' => $this->mercadopago->sellerConfig->getCustIdFromAT(),
+                                'sdk_instance_id' => $flowId,
+                            ]
+                        );
+                    }
+
                     $response          = $this->transaction->createPayment();
 
                     $this->mercadopago->orderMetadata->setSupertokenMetadata($order, $response, $this->transaction->getInternalMetadata());

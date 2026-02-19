@@ -4,7 +4,7 @@ Tags: ecommerce, mercadopago, woocommerce
 Requires at least: 6.3
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 8.7.7
+Stable tag: 8.7.11
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,14 +134,12 @@ Set up both the plugin and the checkouts you want to activate on your payment av
 
 Check out our <a href="https://www.mercadopago.com.br/developers/pt/plugins_sdks/plugins/official/woo-commerce/">official documentation</a> for more information on the specific fields to configure.
 
-= v8.7.7 (23/01/2026) =
+= v8.7.11 (18/02/2026) =
 * Added
-- Add validation on select element for custom checkout
-- Add MLA fees display on installments
-- Add default option on select element
+- Add authorized pseudotoken tracking to detect token mismatch on fast payment flow
+- Add server-side metric for pseudotoken inconsistency detection
 
-* Changed
-- Improve installments layout based on design specifications
-- Add compatibility with Funnel Checkout plugin styles on document type select element
+* Fixed
+- Fix fast payment flow using authorized pseudotoken to ensure payment consistency
 
 [See changelog for all versions](https://github.com/mercadopago/cart-woocommerce/blob/main/CHANGELOG.md).
