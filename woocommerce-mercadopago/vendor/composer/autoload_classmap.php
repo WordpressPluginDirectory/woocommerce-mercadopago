@@ -127,6 +127,8 @@ return array(
     'MercadoPago\\Woocommerce\\Gateways\\PseGateway' => $baseDir . '/src/Gateways/PseGateway.php',
     'MercadoPago\\Woocommerce\\Gateways\\TicketGateway' => $baseDir . '/src/Gateways/TicketGateway.php',
     'MercadoPago\\Woocommerce\\Gateways\\YapeGateway' => $baseDir . '/src/Gateways/YapeGateway.php',
+    'MercadoPago\\Woocommerce\\HealthMonitor\\FileIntegrityChecker' => $baseDir . '/src/HealthMonitor/FileIntegrityChecker.php',
+    'MercadoPago\\Woocommerce\\HealthMonitor\\ScriptHealthMonitor' => $baseDir . '/src/HealthMonitor/ScriptHealthMonitor.php',
     'MercadoPago\\Woocommerce\\Helpers' => $baseDir . '/src/Helpers.php',
     'MercadoPago\\Woocommerce\\Helpers\\Actions' => $baseDir . '/src/Helpers/Actions.php',
     'MercadoPago\\Woocommerce\\Helpers\\Arrays' => $baseDir . '/src/Helpers/Arrays.php',

@@ -7,7 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInit3fbec3256bf8d1ab9d096a5761d3dd59
 {
     public static $prefixLengthsPsr4 = array (
-        'M' =>
+        'M' => 
         array (
             'MercadoPago\\Woocommerce\\' => 24,
             'MercadoPago\\PP\\Sdk\\' => 19,
@@ -15,11 +15,11 @@ class ComposerStaticInit3fbec3256bf8d1ab9d096a5761d3dd59
     );
 
     public static $prefixDirsPsr4 = array (
-        'MercadoPago\\Woocommerce\\' =>
+        'MercadoPago\\Woocommerce\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
-        'MercadoPago\\PP\\Sdk\\' =>
+        'MercadoPago\\PP\\Sdk\\' => 
         array (
             0 => __DIR__ . '/..' . '/mp-plugins/php-sdk/src',
         ),
@@ -147,6 +147,8 @@ class ComposerStaticInit3fbec3256bf8d1ab9d096a5761d3dd59
         'MercadoPago\\Woocommerce\\Gateways\\PseGateway' => __DIR__ . '/../..' . '/src/Gateways/PseGateway.php',
         'MercadoPago\\Woocommerce\\Gateways\\TicketGateway' => __DIR__ . '/../..' . '/src/Gateways/TicketGateway.php',
         'MercadoPago\\Woocommerce\\Gateways\\YapeGateway' => __DIR__ . '/../..' . '/src/Gateways/YapeGateway.php',
+        'MercadoPago\\Woocommerce\\HealthMonitor\\FileIntegrityChecker' => __DIR__ . '/../..' . '/src/HealthMonitor/FileIntegrityChecker.php',
+        'MercadoPago\\Woocommerce\\HealthMonitor\\ScriptHealthMonitor' => __DIR__ . '/../..' . '/src/HealthMonitor/ScriptHealthMonitor.php',
         'MercadoPago\\Woocommerce\\Helpers' => __DIR__ . '/../..' . '/src/Helpers.php',
         'MercadoPago\\Woocommerce\\Helpers\\Actions' => __DIR__ . '/../..' . '/src/Helpers/Actions.php',
         'MercadoPago\\Woocommerce\\Helpers\\Arrays' => __DIR__ . '/../..' . '/src/Helpers/Arrays.php',

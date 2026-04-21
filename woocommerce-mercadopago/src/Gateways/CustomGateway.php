@@ -134,6 +134,34 @@ class CustomGateway extends AbstractGateway
         return 'checkout-custom';
     }
 
+    private function getCheckoutEmailIfAvailable()
+    {
+        $order_key = isset($_GET['key']) ? sanitize_text_field(wp_unslash($_GET['key'])) : '';
+        if ($order_key) {
+            $order_id = wc_get_order_id_by_order_key($order_key);
+            if ($order_id) {
+                $order = wc_get_order($order_id);
+                if ($order) {
+                    return $order->get_billing_email();
+                }
+            }
+        }
+
+        $current_user = wp_get_current_user();
+        if ($current_user->ID && $current_user->user_email) {
+            return $current_user->user_email;
+        }
+
+        if (WC()->customer) {
+            $email = WC()->customer->get_billing_email();
+            if ($email) {
+                return $email;
+            }
+        }
+
+        return '';
+    }
+
     public function formFieldsHeaderSection(): array
     {
         return array_replace_recursive(parent::formFieldsHeaderSection(), [
@@ -229,6 +257,11 @@ class CustomGateway extends AbstractGateway
         $this->mercadopago->hooks->scripts->registerCheckoutStyle(
             'wc_mercadopago_supertoken_payment_methods',
             $this->mercadopago->helpers->url->getCssAsset('checkouts/super-token/super-token-payment-methods'),
+        );
+
+        $this->mercadopago->hooks->scripts->registerCheckoutStyle(
+            'wc_mercadopago_supertoken_payment_method_details_skeleton',
+            $this->mercadopago->helpers->url->getCssAsset('checkouts/super-token/super-token-method-details-skeleton'),
         );
     }
 
@@ -533,7 +566,7 @@ class CustomGateway extends AbstractGateway
                 'location' => '/checkout',
                 'theme' => get_stylesheet(),
                 'cust_id' => $this->mercadopago->sellerConfig->getCustIdFromAT(),
-                'current_user_email' => wp_get_current_user()->user_email ?? '',
+                'current_user_email' => $this->getCheckoutEmailIfAvailable(),
                 'wallet_button_enabled' => $this->getWalletButtonEnabled(),
                 'yellow_wallet_path' => $this->mercadopago->helpers->url->getImageAsset('icons/icon-yellow-wallet'),
                 'yellow_money_path' => $this->mercadopago->helpers->url->getImageAsset('icons/icon-yellow-money'),
@@ -704,15 +737,16 @@ class CustomGateway extends AbstractGateway
             case 'super_token':
                 $this->paymentMethodName = 'woo-mercado-pago-super-token';
                 $this->mercadopago->logs->file->info('Preparing to get response of custom super token checkout', self::LOG_SOURCE);
-                if (
-                    !Arrays::anyEmpty($checkout, [
-                        'authorized_pseudotoken',
-                        'amount',
-                        'payment_method_id',
-                        'payment_type_id',
-                    ])
-                    && ($checkout['payment_type_id'] != 'credit_card' || (!empty($checkout['installments']) && $checkout['installments'] > 0))
-                ) {
+
+                $requiredFields = ['authorized_pseudotoken', 'amount', 'payment_method_id', 'payment_type_id'];
+                $missingFields = array_filter($requiredFields, fn($field) => empty($checkout[$field] ?? null));
+
+                $isCreditCard = ($checkout['payment_type_id'] ?? '') === 'credit_card';
+                if ($isCreditCard && (empty($checkout['installments']) || $checkout['installments'] <= 0)) {
+                    $missingFields[] = 'installments_required_for_credit';
+                }
+
+                if (empty($missingFields)) {
                     $checkout['super_token_validation'] = $checkout['super_token_validation'] ?? false;
 
                     $this->transaction = new SupertokenTransaction($this, $order, $checkout);
@@ -756,19 +790,23 @@ class CustomGateway extends AbstractGateway
                     return $this->handleResponseStatus($order, $response);
                 }
 
-                throw new InvalidCheckoutDataException('exception : Unable to process payment on ' . __METHOD__);
+                throw new InvalidCheckoutDataException(
+                    'exception : Unable to process payment on ' . __METHOD__,
+                    0,
+                    null,
+                    [
+                        'missing_fields'  => implode(',', array_values($missingFields)),
+                        'payment_type_id' => $checkout['payment_type_id'] ?? 'unknown',
+                    ]
+                );
 
             default:
                 $this->mercadopago->logs->file->info('Preparing to get response of custom checkout', self::LOG_SOURCE);
 
-                if (
-                    !Arrays::anyEmpty($checkout, [
-                        'token',
-                        'amount',
-                        'payment_method_id',
-                        'installments',
-                    ]) && $checkout['installments'] !== -1
-                ) {
+                $requiredFields = ['token', 'amount', 'payment_method_id', 'installments'];
+                $missingFields = array_filter($requiredFields, fn($field) => empty($checkout[$field] ?? null));
+
+                if (empty($missingFields)) {
                     $this->transaction = new CustomTransaction($this, $order, $checkout);
                     $response = $this->transaction->createPayment();
 
@@ -776,7 +814,14 @@ class CustomGateway extends AbstractGateway
                     return $this->handleResponseStatus($order, $response);
                 }
 
-                throw new InvalidCheckoutDataException('exception : Unable to process payment on ' . __METHOD__);
+                throw new InvalidCheckoutDataException(
+                    'exception : Unable to process payment on ' . __METHOD__,
+                    0,
+                    null,
+                    [
+                        'missing_fields' => implode(',', array_values($missingFields)),
+                    ]
+                );
         }
     }
 
@@ -915,6 +960,29 @@ class CustomGateway extends AbstractGateway
     }
 
     /**
+     * Override processReturnFail to return JSON on the Order Pay page.
+     * Without this, WooCommerce's WC_Form_Handler::pay_action() would receive the
+     * fail array and redirect, causing the AJAX caller to get HTML instead of JSON.
+     */
+    public function processReturnFail(Exception $e, string $message, string $source, array $context = [], bool $notice = false): array
+    {
+        $result = parent::processReturnFail($e, $message, $source, $context, $notice);
+
+        if ($this->isOrderPayPage()) {
+            $statusDetail = $e instanceof RejectedPaymentException ? $e->getStatusDetail() : $this->storeTranslations['default_error_message'];
+            $this->handlePayForOrderRequest([
+                'result' => 'fail',
+                'redirect' => false,
+                'messages' => $this->mercadopago->storeTranslations->buyerRefusedMessages[
+                    $this->getRejectedPaymentErrorKey($statusDetail)
+                ] ?? $this->mercadopago->storeTranslations->buyerRefusedMessages['buyer_default']
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
      * Check if there is a pay_for_order query param.
      * This indicates that the user is on the Order Pay Checkout page.
      *
@@ -1001,7 +1069,9 @@ class CustomGateway extends AbstractGateway
                         if ($this->isOrderPayPage()) {
                             $this->handlePayForOrderRequest([
                                 'result' => 'fail',
-                                'messages' => $this->getRejectedPaymentErrorKey($response['status_detail'])
+                                'messages' => $this->mercadopago->storeTranslations->buyerRefusedMessages[
+                                $this->getRejectedPaymentErrorKey($response['status_detail'])
+                            ] ?? $this->mercadopago->storeTranslations->buyerRefusedMessages['buyer_default']
                             ]);
                             return []; // Case $_ENV['PHPUNIT_TEST'] == true
                         }
