@@ -151,6 +151,7 @@ return array(
     'MercadoPago\\Woocommerce\\Helpers\\Images' => $baseDir . '/src/Helpers/Images.php',
     'MercadoPago\\Woocommerce\\Helpers\\Intervals' => $baseDir . '/src/Helpers/Intervals.php',
     'MercadoPago\\Woocommerce\\Helpers\\Links' => $baseDir . '/src/Helpers/Links.php',
+    'MercadoPago\\Woocommerce\\Helpers\\MetricContext' => $baseDir . '/src/Helpers/MetricContext.php',
     'MercadoPago\\Woocommerce\\Helpers\\Nonce' => $baseDir . '/src/Helpers/Nonce.php',
     'MercadoPago\\Woocommerce\\Helpers\\Notices' => $baseDir . '/src/Helpers/Notices.php',
     'MercadoPago\\Woocommerce\\Helpers\\NotificationType' => $baseDir . '/src/Helpers/NotificationType.php',

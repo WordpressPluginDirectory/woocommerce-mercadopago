@@ -171,6 +171,7 @@ class ComposerStaticInit3fbec3256bf8d1ab9d096a5761d3dd59
         'MercadoPago\\Woocommerce\\Helpers\\Images' => __DIR__ . '/../..' . '/src/Helpers/Images.php',
         'MercadoPago\\Woocommerce\\Helpers\\Intervals' => __DIR__ . '/../..' . '/src/Helpers/Intervals.php',
         'MercadoPago\\Woocommerce\\Helpers\\Links' => __DIR__ . '/../..' . '/src/Helpers/Links.php',
+        'MercadoPago\\Woocommerce\\Helpers\\MetricContext' => __DIR__ . '/../..' . '/src/Helpers/MetricContext.php',
         'MercadoPago\\Woocommerce\\Helpers\\Nonce' => __DIR__ . '/../..' . '/src/Helpers/Nonce.php',
         'MercadoPago\\Woocommerce\\Helpers\\Notices' => __DIR__ . '/../..' . '/src/Helpers/Notices.php',
         'MercadoPago\\Woocommerce\\Helpers\\NotificationType' => __DIR__ . '/../..' . '/src/Helpers/NotificationType.php',
