@@ -18,6 +18,9 @@ use MercadoPago\PP\Sdk\Common\AbstractEntity;
  * @property string[] $accepted_payments
  * @property string $cpp_token
  * @property bool $is_disabled
+ * @property bool|null $is_subscription_enabled
+ * @property string|null $email
+ * @property string|null $country Free-text country name (e.g. "Brazil"), no fixed format enforced.
  *
  * @package MercadoPago\PP\Sdk\Entity\Identification
  */
@@ -71,6 +74,18 @@ class UpdateSellerFunnelBase extends AbstractEntity
      * @var string
      */
     protected $site_id;
+    /**
+     * @var bool|null
+     */
+    protected $is_subscription_enabled;
+    /**
+     * @var string|null
+     */
+    protected $email;
+    /**
+     * @var string|null
+     */
+    protected $country;
 
 
     /**
@@ -110,7 +125,7 @@ class UpdateSellerFunnelBase extends AbstractEntity
      *
      * @return array
      */
-    public function getUris(string $uris_scope = null): array
+    public function getUris(?string $uris_scope = null): array
     {
         $scope_ppcore = $uris_scope === 'beta' ? 'beta' : 'v1';
 

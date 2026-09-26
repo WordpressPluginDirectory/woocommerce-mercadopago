@@ -23,6 +23,7 @@ class CoreNotification extends AbstractNotification
     private const REFUND_METRIC_SUCCESS_MP = 'mp_refund_success';
     private const REFUND_METRIC_ERROR_MP = 'mp_refund_error';
     private const REFUND_ORIGIN_MP = 'origin_mercadopago';
+    private const CHECKOUT_TYPE_META_KEY = 'checkout_type';
 
     /**
      * Get Notification Id
@@ -148,7 +149,21 @@ class CoreNotification extends AbstractNotification
             $data['current_refund'] = [];
             $refundId = $refund['id'] ?? null;
 
-            if (!$this->isValidRefund($refund, $refundId, $data)) {
+            if (!$this->isValidRefund($refund, $refundId, $data, $order)) {
+                continue;
+            }
+
+            // $refundId comes straight from the webhook payload; strip CR/LF/TAB before it is
+            // concatenated into any log line so a malformed id cannot forge log entries or trip
+            // SIEM parsers (log injection). Used only for logging — lookups keep the raw value.
+            $safeRefundId = preg_replace('/[\r\n\t]/', '', (string) $refundId);
+
+            // Refund-id dedup: if this refund_id was already applied (persisted at refund time from
+            // the panel), the refund is fully accounted for — RefundHandler recorded the per-payment
+            // refunded amount at refund time (PSW-4412), and the WooCommerce refund already exists.
+            // Skip the notification to avoid creating a duplicate refund or double-counting the amount.
+            if ($this->orderStatus->isRefundIdApplied($order, (string) $refundId)) {
+                $this->logs->file->info('Refund already applied, skipping notification refund: ' . $safeRefundId, __CLASS__);
                 continue;
             }
 
@@ -164,9 +179,13 @@ class CoreNotification extends AbstractNotification
             if ($this->shouldProcessRefund($currentRefund)) {
                 $processedStatus = $this->getProcessedStatus($order, $data);
                 $this->logStatusChange($oldOrderStatus, $processedStatus);
-                $this->processStatus($processedStatus, $order, $data);
+                $refundApplied = $this->processStatus($processedStatus, $order, $data);
 
-                $this->sendRefundSuccessMetric();
+                // Only report success when the refund was actually applied. A wc_create_refund
+                // failure inside refundedFlow already emitted mp_refund_error and returns false.
+                if ($refundApplied) {
+                    $this->sendRefundSuccessMetric($order);
+                }
             } else {
                 if (!empty($data['payments_details'])) {
                     $this->updatePaymentDetails($order, $data);
@@ -182,26 +201,27 @@ class CoreNotification extends AbstractNotification
      * @param array $refund
      * @param string|null $refundId
      * @param mixed $data
+     * @param WC_Order $order
      *
      * @return bool
      */
-    private function isValidRefund($refund, $refundId, $data): bool
+    private function isValidRefund($refund, $refundId, $data, WC_Order $order): bool
     {
         if (!$refundId) {
             $this->logs->file->error('Refund ID not found in notification', __CLASS__, $data);
-            $this->sendRefundErrorMetric('validation_failed', 'Refund ID not found in notification');
+            $this->sendRefundErrorMetric('validation_failed', 'Refund ID not found in notification', $order);
             return false;
         }
 
         if (!isset($refund['amount']) || empty($refund['amount']) || $refund['amount'] <= 0.00) {
             $this->logs->file->error('Invalid refund amount: must be greater than 0', __CLASS__, $refund);
-            $this->sendRefundErrorMetric('validation_failed', 'Invalid refund amount: must be greater than 0');
+            $this->sendRefundErrorMetric('validation_failed', 'Invalid refund amount: must be greater than 0', $order);
             return false;
         }
 
         if (!$this->isValidPaymentsDetailsStructure($data)) {
             $this->logs->file->error('Invalid payments_details structure in notification', __CLASS__, $data);
-            $this->sendRefundErrorMetric('validation_failed', 'Invalid payments_details structure in notification');
+            $this->sendRefundErrorMetric('validation_failed', 'Invalid payments_details structure in notification', $order);
             return false;
         }
 
@@ -284,8 +304,23 @@ class CoreNotification extends AbstractNotification
 
             $refundedAmount = $paymentData->refund ?? 0;
 
+            // MP-origin refund: the notification carries the current refund's amount, which is
+            // incremented into the per-payment total here. Panel-origin refunds do NOT reach this
+            // path — RefundHandler records their per-payment amount at refund time (PSW-4412), and
+            // their notification is recognised as already-applied and skipped in
+            // handleRefundNotification.
             if (isset($data['current_refund']) && isset($payment['refunds'][$data['current_refund']['id']])) {
                 $refundedAmount += $data['current_refund']['amount'];
+                $this->logs->file->info(
+                    sprintf(
+                        'Accumulated MP-origin refund %s (%s) on payment %s; [Refund] -> %s',
+                        preg_replace('/[\r\n\t]/', '', (string) $data['current_refund']['id']),
+                        $data['current_refund']['amount'],
+                        preg_replace('/[\r\n\t]/', '', (string) $payment['id']),
+                        $refundedAmount
+                    ),
+                    __CLASS__
+                );
             }
 
             $order->update_meta_data(PaymentMetadata::getPaymentMetaKey($payment['id']), PaymentMetadata::formatPaymentMetadata($payment, $refundedAmount));
@@ -326,11 +361,33 @@ class CoreNotification extends AbstractNotification
     }
 
     /**
-     * Send refund success metric to Datadog
+     * Get the checkout_type from the order metadata so refund metrics can be
+     * segmented by product bucket (super_token, credit_card, pix…) in Datadog.
+     * Returns null for legacy orders that predate the checkout_type metadata.
+     *
+     * @param WC_Order|null $order
+     *
+     * @return string|null
      */
-    private function sendRefundSuccessMetric(): void
+    private function getCheckoutType(?WC_Order $order): ?string
     {
-        Datadog::getInstance()->sendEvent(self::REFUND_METRIC_SUCCESS_MP, 'refund_success', self::REFUND_ORIGIN_MP);
+        if (!$order) {
+            return null;
+        }
+
+        $checkoutType = $order->get_meta(self::CHECKOUT_TYPE_META_KEY);
+
+        return !empty($checkoutType) ? (string) $checkoutType : null;
+    }
+
+    /**
+     * Send refund success metric to Datadog
+     *
+     * @param WC_Order $order
+     */
+    private function sendRefundSuccessMetric(WC_Order $order): void
+    {
+        Datadog::getInstance()->sendEvent(self::REFUND_METRIC_SUCCESS_MP, 'refund_success', self::REFUND_ORIGIN_MP, $this->getCheckoutType($order));
     }
 
     /**
@@ -338,9 +395,10 @@ class CoreNotification extends AbstractNotification
      *
      * @param string $errorCode
      * @param string $errorMessage
+     * @param WC_Order|null $order
      */
-    private function sendRefundErrorMetric(string $errorCode, string $errorMessage): void
+    private function sendRefundErrorMetric(string $errorCode, string $errorMessage, ?WC_Order $order = null): void
     {
-        Datadog::getInstance()->sendEvent(self::REFUND_METRIC_ERROR_MP, $errorCode, $errorMessage);
+        Datadog::getInstance()->sendEvent(self::REFUND_METRIC_ERROR_MP, $errorCode, $errorMessage, $this->getCheckoutType($order));
     }
 }

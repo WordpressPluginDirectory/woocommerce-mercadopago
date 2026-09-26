@@ -56,6 +56,8 @@ class OrderMetadata
 
     public const CURRENCY_RATIO = '_currency_ratio';
 
+    public const APPLIED_REFUND_IDS = '_mp_applied_refund_ids';
+
     private OrderMeta $orderMeta;
 
     private Logs $logs;
@@ -80,6 +82,26 @@ class OrderMetadata
     public function getUsedGatewayData(WC_Order $order)
     {
         return $this->orderMeta->get($order, self::USED_GATEWAY);
+    }
+
+    /**
+     * Get the checkout_type stored on the order so refund metrics can be segmented by
+     * product bucket (super_token, credit_card, pix…) in Datadog. Returns null for legacy
+     * orders that predate the checkout_type metadata.
+     *
+     * @param WC_Order|null $order
+     *
+     * @return string|null
+     */
+    public function getCheckoutType(?WC_Order $order): ?string
+    {
+        if (!$order) {
+            return null;
+        }
+
+        $checkoutType = $this->orderMeta->get($order, self::CHECKOUT_TYPE);
+
+        return !empty($checkoutType) ? (string) $checkoutType : null;
     }
 
     /**
@@ -404,6 +426,195 @@ class OrderMetadata
     }
 
     /**
+     * Get the list of refund IDs already applied to the order (refund deduplication barrier).
+     *
+     * The metadata is stored as a JSON-encoded array of strings. Legacy orders (meta
+     * absent) and empty values resolve to an empty array. The return is always a
+     * normalized array of strings.
+     *
+     * @param WC_Order $order
+     *
+     * @return array
+     */
+    public function getAppliedRefundIds(WC_Order $order): array
+    {
+        $raw = $this->orderMeta->get($order, self::APPLIED_REFUND_IDS, true);
+
+        if (empty($raw)) {
+            return [];
+        }
+
+        if (is_array($raw)) {
+            $decoded = $raw;
+        } else {
+            $decoded = json_decode((string) $raw, true);
+            if (!is_array($decoded)) {
+                // Meta exists but is not a decodable JSON array (corrupted write or DB
+                // truncation). Returning [] here means "no refund applied yet", which is
+                // false and would let a later notification re-create every already-applied
+                // refund. Log at error level so it surfaces in monitoring; still fall back
+                // to [] because the value-based barrier (OrderStatus::refundedFlow) remains
+                // as the dedup safety net.
+                $this->logs->file->error(
+                    'Corrupted applied-refund-ids meta on order ' . $order->get_id()
+                    . '; expected JSON array, got: ' . (string) $raw,
+                    __CLASS__
+                );
+                return [];
+            }
+        }
+
+        return array_values(array_map('strval', $decoded));
+    }
+
+    /**
+     * Append a refund ID to the applied-refunds list, guarding against duplicates.
+     *
+     * Reloads the order meta from the store (HPOS-safe) before evaluating the current
+     * list, so concurrent notification/panel writes are observed. If the refund ID is
+     * already present (strict string comparison), nothing is written. Otherwise the ID
+     * is appended and the list is persisted as JSON before the caller completes the flow.
+     *
+     * HPOS approach: uses WC_Order CRUD methods exclusively (read_meta_data, update_meta_data,
+     * save). Under HPOS these operate on wc_orders_meta; under legacy storage they use
+     * wp_postmeta. No direct $wpdb query is needed because WC_Order::read_meta_data(true)
+     * bypasses the in-memory cache and fetches fresh rows from whichever backend is active.
+     *
+     * Failure handling: this method never throws. The refund itself has already been
+     * committed (MP + WooCommerce) by the time it runs, so a persistence failure here must
+     * not abort the caller (e.g. a multi-payment loop) nor be swallowed by an outer catch.
+     * Both failure modes are logged at error level and the value-based barrier in
+     * OrderStatus::refundedFlow (totalRefundedMP <= totalRefundedWC) remains as the dedup
+     * safety net for the next notification.
+     *
+     * @param WC_Order $order
+     * @param string $refundId
+     *
+     * @return void
+     */
+    public function addAppliedRefundId(WC_Order $order, string $refundId): void
+    {
+        // Force a fresh read from the data store (HPOS-safe) before appending, so
+        // concurrent notification/panel writes are observed.
+        $order->read_meta_data(true);
+
+        $appliedRefundIds = $this->getAppliedRefundIds($order);
+
+        if (in_array($refundId, $appliedRefundIds, true)) {
+            return;
+        }
+
+        $appliedRefundIds[] = $refundId;
+
+        $encoded = wp_json_encode($appliedRefundIds);
+        if ($encoded === false) {
+            // Never persist a literal "false": a later json_decode would yield null and
+            // getAppliedRefundIds would silently return [], wiping the whole dedup history.
+            // Bail out keeping the previous (valid) meta value untouched.
+            $this->logs->file->error(
+                'Failed to JSON-encode applied refund ids for order ' . $order->get_id()
+                . ' (refund_id=' . $refundId . '); keeping previous value',
+                __CLASS__
+            );
+            return;
+        }
+
+        try {
+            $this->orderMeta->update($order, self::APPLIED_REFUND_IDS, $encoded);
+            $order->save();
+        } catch (\Throwable $e) {
+            $this->logs->file->error(
+                'Failed to persist applied refund id ' . $refundId . ' for order '
+                . $order->get_id() . ': ' . $e->getMessage(),
+                __CLASS__
+            );
+        }
+    }
+
+    /**
+     * Add a refunded amount to a payment's per-payment "[Refund X]" metadata.
+     *
+     * Source-of-truth write (PSW-4412): called by RefundHandler at panel-refund time, when the
+     * exact payment and amount are known. Recording the amount here — instead of reconstructing it
+     * later from an async notification — removes the need to tell a new order from a legacy one:
+     * the notification only has to recognise the already-applied refund and skip it.
+     *
+     * Increments the existing "[Refund X]" segment in place, preserving every other stored field,
+     * and reloads meta first (HPOS-safe) so a concurrent notification write is observed. Never
+     * throws — a persistence failure is logged and swallowed so a transient DB error cannot abort
+     * the refund flow; the WooCommerce order-level refunded total (get_total_refunded) remains the
+     * authoritative record.
+     *
+     * @param WC_Order $order
+     * @param string $paymentId
+     * @param float $amount amount refunded from this payment, in the MP account currency
+     *
+     * @return void
+     */
+    public function addRefundedAmountToPayment(WC_Order $order, string $paymentId, float $amount): void
+    {
+        if ($amount <= 0) {
+            return;
+        }
+
+        // Force a fresh read (HPOS-safe) before updating so a concurrent notification write is observed.
+        $order->read_meta_data(true);
+
+        $metaKey = PaymentMetadata::getPaymentMetaKey($paymentId);
+        $stored  = (string) $order->get_meta($metaKey);
+
+        if ($stored === '' || strpos($stored, '[Refund') === false) {
+            // No per-payment metadata (or no [Refund] segment) to increment yet: the payment-details
+            // sync has not run for this payment. The order-level refunded total still records the
+            // refund, so bail out without corrupting the stored string.
+            $this->logs->file->info(
+                'No payment metadata to update refunded amount for payment ' . $paymentId
+                . ' on order ' . $order->get_id(),
+                __CLASS__
+            );
+            return;
+        }
+
+        $paymentData     = PaymentMetadata::extractPaymentDataFromMeta($stored);
+        $previousRefund  = (float) ($paymentData->refund ?? 0);
+        $newRefunded     = $previousRefund + $amount;
+
+        // Replace only the [Refund X] segment, preserving every other stored field. The pattern is
+        // static and $stored is guaranteed to contain a [Refund ...] segment (checked above), so
+        // preg_replace always returns the updated string; the `?? $stored` is a defensive no-op that
+        // keeps the value untouched in the impossible event of a PCRE failure.
+        $updated = preg_replace(
+            '/\[Refund [^\]]*\]/',
+            sprintf('[Refund %s]', $newRefunded),
+            $stored,
+            1
+        ) ?? $stored;
+
+        try {
+            $this->orderMeta->update($order, $metaKey, $updated);
+            $this->logs->file->info(
+                sprintf(
+                    'Recorded refund amount %s on payment %s at refund time; [Refund] %s -> %s (order %s)',
+                    $amount,
+                    preg_replace('/[\r\n\t]/', '', $paymentId),
+                    $previousRefund,
+                    $newRefunded,
+                    $order->get_id()
+                ),
+                __CLASS__
+            );
+        } catch (\Throwable $e) {
+            // Log only the exception class, never getMessage(): a wpdb/PDO exception can embed the
+            // failing SQL in the message and leak it into centralized logs.
+            $this->logs->file->error(
+                'Failed to persist refunded amount for payment ' . $paymentId
+                . ' on order ' . $order->get_id() . '; exception type: ' . get_class($e),
+                __CLASS__
+            );
+        }
+    }
+
+    /**
      * Update an order's payments metadata
      *
      * @param WC_Order $order
@@ -417,7 +628,11 @@ class OrderMetadata
         $this->updatePaymentDetails($order, $paymentData);
         $this->updateLatestPaymentId($order);
         $this->addFeeDetails($order, $paymentData);
-        $this->setMercadoPagoPaymentId($order, [$paymentData['id']]);
+        // Use extractPaymentId for null-safety — consistent with initializePaymentMetadata.
+        $paymentId = $this->extractPaymentId($paymentData);
+        if ($paymentId !== null) {
+            $this->setMercadoPagoPaymentId($order, [$paymentId]);
+        }
     }
 
     /**

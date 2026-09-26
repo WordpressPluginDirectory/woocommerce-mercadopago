@@ -2,9 +2,9 @@
 Contributors: mercadopago
 Tags: ecommerce, mercadopago, woocommerce
 Requires at least: 6.3
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 8.7.20
+Stable tag: 8.9.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,18 +134,9 @@ Set up both the plugin and the checkouts you want to activate on your payment av
 
 Check out our <a href="https://www.mercadopago.com.br/developers/pt/plugins_sdks/plugins/official/woo-commerce/">official documentation</a> for more information on the specific fields to configure.
 
-= v8.7.20 (28/04/2026) =
-* Added
-- Add metric mp_js_cache_age to detect stale plugin JS files cached on seller servers
-- Add metric mp_custom_checkout_validation_cdn_fallback when checkout validation CDN function is unavailable
-
-* Fixed
-- Fix fatal error on first admin page load after install or update when gateway classes initialize before plugin is fully booted
-- Fix checkout blocked by hidden third-party shipping sub-fields (e.g. kShipping Argentina office selector) when a simpler shipping method is selected — validation now delegates to CDN and only evaluates visible fields
-- Fix fast payment flow rendering over another payment method when switching quickly between custom checkout and another payment method
-
-* Changed
-- Prevent fast payment flow from initializing when the email field contains invalid data (partial text, address, or phone number), reducing authentication errors during checkout
-
+= v8.9.5 (25/09/2026) =
+### Fixed
+- Restore card payments on checkout pages built with FunnelKit
+- Fix fast payment on block-based checkout pages where the payment form could remain loading
 
 [See changelog for all versions](https://github.com/mercadopago/cart-woocommerce/blob/main/CHANGELOG.md).

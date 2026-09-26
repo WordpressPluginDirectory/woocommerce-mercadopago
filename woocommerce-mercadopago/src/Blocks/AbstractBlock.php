@@ -81,13 +81,25 @@ abstract class AbstractBlock extends AbstractPaymentMethodType implements Mercad
     }
 
     /**
-     * Returns if this payment method should be active
+     * Returns if this payment method should be active.
+     *
+     * Returns false when the gateway is not set, when its static availability
+     * rule rejects it (country, payment method registration), or when seller
+     * credentials are missing.
      *
      * @return boolean
      */
     public function is_active(): bool
     {
-        return isset($this->gateway) && $this->gateway->isAvailable();
+        if (!isset($this->gateway) || !$this->gateway->isAvailable()) {
+            return false;
+        }
+
+        if ($this->gateway->isMissingCredentials()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -188,8 +200,6 @@ abstract class AbstractBlock extends AbstractPaymentMethodType implements Mercad
 
         $this->mercadopago->helpers->session->setSession(self::ACTION_SESSION_KEY, $action);
         $this->mercadopago->helpers->session->setSession(self::GATEWAY_SESSION_KEY, $gateway);
-
-        $this->mercadopago->helpers->cart->calculateTotal();
     }
 
     /**
@@ -205,6 +215,10 @@ abstract class AbstractBlock extends AbstractPaymentMethodType implements Mercad
             return;
         }
 
+        if (!$this->hasFees()) {
+            return;
+        }
+
         if (isset($this->gateway)) {
             $action = $this->mercadopago->helpers->session->getSession(self::ACTION_SESSION_KEY);
 
@@ -212,10 +226,24 @@ abstract class AbstractBlock extends AbstractPaymentMethodType implements Mercad
                 $this->mercadopago->helpers->cart->addDiscountAndCommissionOnFeesFromBlocks($this->gateway);
             }
 
-            if ($action == 'remove') {
-                $this->mercadopago->helpers->cart->removeDiscountAndCommissionOnFeesFromBlocks($this->gateway);
-            }
+            // action 'remove' is a no-op: WooCommerce calls remove_all_fees() at the
+            // start of every calculate_totals() cycle, which already clears MP fees.
         }
+    }
+
+    /**
+     * Whether the gateway has a commission or discount configured.
+     *
+     * @return bool
+     */
+    public function hasFees(): bool
+    {
+        if (!isset($this->gateway)) {
+            return false;
+        }
+
+        return (isset($this->gateway->commission) && $this->gateway->commission > 0)
+            || (isset($this->gateway->discount) && $this->gateway->discount > 0);
     }
 
     /**

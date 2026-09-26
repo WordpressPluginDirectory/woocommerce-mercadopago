@@ -161,12 +161,19 @@ class CurlRequester implements RequesterInterface
         return curl_init();
     }
 
+    protected function curlClose($request)
+    {
+        if ($this->getPhpVersionId() < 80500) {
+            curl_close($request);
+        }
+    }
+
     /**
      * @codeCoverageIgnore
      */
-    protected function curlClose($request)
+    protected function getPhpVersionId(): int
     {
-        curl_close($request);
+        return PHP_VERSION_ID;
     }
 
     /**

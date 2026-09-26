@@ -91,9 +91,39 @@ class StoreTranslations
 
     // TODO(PHP8.2): Change type hint from phpdoc to native
     /**
+     * Subscription-related buyer-facing error messages.
+     *
+     * Keys match the symbolic `error` field returned by Core P&P
+     * (technical spec §4.7 — 13 documented codes) plus a few stable
+     * codes (`CPP_TAAP_*`) and HTTP-status fallbacks. Empty strings are
+     * intentional silent-success cases (caller should not surface them).
+     *
+     * @var array|ArrayAccess
+     */
+    public $subscriptionsErrorMessages = [];
+
+    // TODO(PHP8.2): Change type hint from phpdoc to native
+    /**
      * @var array|ArrayAccess
      */
     public $threeDsTranslations;
+
+    /**
+     * Maps ag-transaction CPP_AT error codes to localized buyer-facing messages.
+     * Keys are CPP_AT codes (e.g. 'CPP_AT_0103004'); values are translated strings.
+     *
+     * @var array<string, string>
+     */
+    public $superTokenApiErrors = [];
+
+    /**
+     * Maps codes found in original_message to localized buyer-facing messages.
+     * Used for errors that arrive embedded in the raw error chain (not in the top-level error field).
+     * Keys are substrings to search for in original_message; values are translated strings.
+     *
+     * @var array<string, string>
+     */
+    public array $superTokenOriginalMessageErrors = [];
 
     public array $links;
 
@@ -119,6 +149,10 @@ class StoreTranslations
         $this->setbuyerRefusedMessagesTranslations();
         $this->setCheckoutErrorMessagesTranslations();
         $this->setCheckoutErrorMessagesTranslationsV2();
+        $this->setSuperTokenApiErrorTranslations();
+        $this->setSuperTokenOriginalMessageErrorTranslations();
+        $this->setSubscriptionsErrorMessagesTranslations();
+        $this->setCitErrorTranslations();
         $this->set3dsTranslations();
     }
 
@@ -323,6 +357,11 @@ class StoreTranslations
             'payment_methods_list_alt_text'                       => __('Saved payment methods in your Mercado Pago account.', 'woocommerce-mercadopago'),
             'last_digits_text'                                    => __('ending in', 'woocommerce-mercadopago'),
             'new_card_text'                                       => __('New card', 'woocommerce-mercadopago'),
+            'saved_cards_title'                                   => __('Saved cards', 'woocommerce-mercadopago'),
+            'saved_card_title'                                    => __('Saved card', 'woocommerce-mercadopago'),
+            'mp_methods_title'                                    => __('You can also use', 'woocommerce-mercadopago'),
+            'account_money_balance_text'                          => __('Enough to pay for this purchase.', 'woocommerce-mercadopago'),
+            'saved_payment_method_title'                          => __('Saved payment method', 'woocommerce-mercadopago'),
             'account_money_text'                                  => __('Account Money', 'woocommerce-mercadopago'),
             'account_money_wallet_with_investment_text'           => __('Balance in Mercado Pago Wallet + Generating returns in GBM', 'woocommerce-mercadopago'),
             'account_money_wallet_text'                           => __('Balance in Mercado Pago Wallet', 'woocommerce-mercadopago'),
@@ -341,9 +380,17 @@ class StoreTranslations
             'security_code_error_message_text'                    => __('Security code is required', 'woocommerce-mercadopago'),
             'placeholders_cardholder_name'                        => __('E.g.: Mary Jackson', 'woocommerce-mercadopago'),
             'mercado_pago_card_name'                              => __('Mercado Pago Prepaid Card', 'woocommerce-mercadopago'),
+            'mercado_pago_credit_card_name'                       => __('Mercado Pago Credit Card', 'woocommerce-mercadopago'),
             'card_number_validation_error'                        => __('Invalid card number. Please check the information provided.', 'woocommerce-mercadopago'),
             'locale'                                              => __('en-US', 'woocommerce-mercadopago'),
             'card_holder_input_helper_info'                       => __('As it spelled on the card.', 'woocommerce-mercadopago'),
+            'accepted_cards_label'                                => __('You can pay with card', 'woocommerce-mercadopago'),
+            'detected_card_label'                                 => __('Card', 'woocommerce-mercadopago'),
+            'card_number_instruction'                             => __('Enter the {digits} numbers on your card.', 'woocommerce-mercadopago'),
+            'card_expiration_instruction'                         => __('Enter two digits for the month and two digits for the year.', 'woocommerce-mercadopago'),
+            'security_code_instruction'                           => __('Enter your {digits} digit code.', 'woocommerce-mercadopago'),
+            'card_document_instruction_range'                     => __('Enter between {min} and {max} digits for your ID number.', 'woocommerce-mercadopago'),
+            'card_document_instruction_fixed'                     => __('Enter the {digits} digits of your ID number.', 'woocommerce-mercadopago'),
             'consumer_credits_due_date'                           => __('The first installment <b>is due on</b>', 'woocommerce-mercadopago'),
             'months_abbreviated' => [
                 'jan' => __('Jan', 'woocommerce-mercadopago'),
@@ -379,7 +426,7 @@ class StoreTranslations
             'update_security_code_no_retry_error_text' => __('The payment could not be completed. Please pay with another method.', 'woocommerce-mercadopago'),
             'authorize_payment_method_with_retry_error_text' => __('It was not possible to validate your identity. Please try again or pay with another method.', 'woocommerce-mercadopago'),
             'authorize_payment_method_no_retry_error_text' => __('It was not possible to validate your identity. Please pay with another method.', 'woocommerce-mercadopago'),
-            'select_payment_method_error_text' => __('Select a payment method to complete your purchase.', 'woocommerce-mercadopago'),
+            'select_payment_method_error_text'     => __('Select a payment method to complete your purchase.', 'woocommerce-mercadopago'),
         ];
     }
 
@@ -569,6 +616,7 @@ class StoreTranslations
         $this->commonMessages = [
             'cho_default_error'                        => __('A problem was occurred when processing your payment. Please, try again.', 'woocommerce-mercadopago'),
             'cho_form_error'                           => __('<strong>Your payment was declined because something went wrong</strong><br>Please make sure all the information was entered correctly.', 'woocommerce-mercadopago'),
+            'missing_credentials_at_payment'           => __('This payment method is temporarily unavailable. Please choose another option or contact the store.', 'woocommerce-mercadopago'),
             'cho_see_order_form'                       => __('See your order form', 'woocommerce-mercadopago'),
             'cho_payment_declined'                     => __('Your payment was declined. You can try again.', 'woocommerce-mercadopago'),
             'cho_button_try_again'                     => __('Click to try again', 'woocommerce-mercadopago'),
@@ -641,7 +689,7 @@ class StoreTranslations
             'invalid_transaction_amount'               => __('<strong>The amount to be paid is outside the allowed limit for this payment method</strong><br>Enter an amount within the limits or use another payment method.', 'woocommerce-mercadopago'),
             'coupon_invalid'                           => __('<strong>The discount code is not valid</strong><br>Check the code you entered and try again.', 'woocommerce-mercadopago'),
             'coupon_not_numeric'                       => __('<strong>The discount amount must be a number</strong><br>Enter a valid value to continue.', 'woocommerce-mercadopago'),
-            'invalid_users'                            => __('<strong>Credentials don\’t match the environment</strong><br>Enter the correct test or production keys to complete the payment.', 'woocommerce-mercadopago'),
+            'invalid_users'                            => __('<strong>Credentials don’t match the environment</strong><br>Enter the correct test or production keys to complete the payment.', 'woocommerce-mercadopago'),
             'payer_email_too_long'                     => __('<strong>The e-mail is incorrect</strong><br>Make sure to enter it correctly to complete the payment.', 'woocommerce-mercadopago'),
             'payer_email_invalid'                      => __('<strong>The e-mail isn\'t valid for payment</strong><br>Enter another e-mail to complete the payment.', 'woocommerce-mercadopago'),
             'payment_method_unavailable'               => __('<strong>The payment method you selected is not available</strong><br>Choose another method to complete your purchase.', 'woocommerce-mercadopago'),
@@ -680,10 +728,63 @@ class StoreTranslations
     }
 
     /**
+     * Set Super Token API error translations
+     *
+     * Maps ag-transaction CPP_AT error codes to localized buyer-facing messages.
+     * To add a new message: add the CPP_AT key and its translation here — no other file needs to change.
+     *
+     * @return void
+     */
+    private function setSuperTokenApiErrorTranslations(): void
+    {
+        $this->superTokenApiErrors = [
+            'CPP_AT_0103004' => __('<strong>It wasn\'t possible to validate the payment</strong><br>Try again in a moment. If the issue persists, please contact the seller for next steps.', 'woocommerce-mercadopago'),
+            'CPP_AT_0103006' => __('<strong>Your payment was declined due to an error</strong><br>Please try again or use a different payment method.', 'woocommerce-mercadopago'),
+            'CPP_AT_0103016' => __('<strong>This payment method isn\'t available</strong><br>Please use a different payment method to complete your purchase.', 'woocommerce-mercadopago'),
+            'CPP_AT_0103019' => __('<strong>Something went wrong while processing your payment</strong><br>Check if the charge appears on your card. If not, please try again or use a different payment method.', 'woocommerce-mercadopago'),
+            'CPP_AT_0103020' => __('<strong>It wasn\'t possible to validate your card</strong><br>Check if you have available credit or use a different payment method.', 'woocommerce-mercadopago'),
+            'CPP_AT_0103021' => __('<strong>For security reasons, your payment was declined</strong><br>We recommend using your usual payment method and device for online purchases.', 'woocommerce-mercadopago'),
+            'CPP_AT_0103045' => __('<strong>For security reasons, your payment was declined</strong><br>We recommend using your usual payment method and device for online purchases.', 'woocommerce-mercadopago'),
+            'CPP_AT_0103058' => __('<strong>The purchase amount exceeds the limit for this payment method</strong><br>Please use a different payment method to complete your purchase.', 'woocommerce-mercadopago'),
+            'CPP_AT_0800001' => __('<strong>Some card details are incorrect</strong><br>Please review the information entered to complete the payment.', 'woocommerce-mercadopago'),
+        ];
+    }
+
+    /**
+     * Maps codes found in the raw error chain (original_message) to localized buyer-facing messages.
+     * To add a new error: add the substring key and its translation here — no other file needs to change.
+     *
+     * @return void
+     */
+    private function setSuperTokenOriginalMessageErrorTranslations(): void
+    {
+        $this->superTokenOriginalMessageErrors = [
+            'pseudotoken_payment_method_gone' => __('<strong>Your payment session has expired</strong><br>Please try again to complete your purchase.', 'woocommerce-mercadopago'),
+        ];
+    }
+
+    /**
      * Set credits checkout translations
      *
      * @return void
      */
+    private function setCitErrorTranslations(): void
+    {
+        // Buyer-facing strings used by the CIT (initial subscription payment) flow.
+        // Source language (en-US) here is what gettext picks up; pt-BR and es-MX
+        // are filled via i18n/languages/woocommerce-mercadopago-pt.po and -es_MX.po.
+        $citStrings = [
+            'wcs_cit_failed_generic'   => __('We could not activate your subscription. Please try again.', 'woocommerce-mercadopago'),
+            'wcs_cit_no_credential'    => __('Recurring payments credential is not configured. Please contact the store.', 'woocommerce-mercadopago'),
+            'wcs_cit_missing_card'     => __('Card data is incomplete. Please review and try again.', 'woocommerce-mercadopago'),
+            'wcs_cit_admin_no_token'   => __('Pre-approval access token is not configured.', 'woocommerce-mercadopago'),
+            'wcs_cit_admin_bad_card'   => __('Card data is incomplete.', 'woocommerce-mercadopago'),
+        ];
+
+        // Merge into customCheckout so $this->storeTranslations consumed by CustomGateway sees them.
+        $this->customCheckout = array_merge($this->customCheckout, $citStrings);
+    }
+
     private function set3dsTranslations(): void
     {
         $this->threeDsTranslations = [
@@ -694,6 +795,46 @@ class StoreTranslations
             'title_3ds_frame'            => __('Complete the bank validation so your payment can be approved', 'woocommerce-mercadopago'),
             'tooltip_3ds_frame'          => __('Please keep this page open. If you close it, you will not be able to resume the validation.', 'woocommerce-mercadopago'),
             'message_3ds_declined'       => __('<b>For safety reasons, your payment was declined</b><br>We recommend paying with your usual payment method and device for online purchases.', 'woocommerce-mercadopago'),
+        ];
+    }
+
+    /**
+     * Subscription-related buyer-facing error messages.
+     *
+     * Keys are the symbolic `error` field values returned by Core P&P
+     * (technical spec §4.7), plus a stable code (`CPP_TAAP_*`) and HTTP
+     * fallback keys. Empty strings are intentional silent-success cases
+     * (caller logs internally and shows nothing to the buyer).
+     *
+     * @return void
+     */
+    private function setSubscriptionsErrorMessagesTranslations(): void
+    {
+        $this->subscriptionsErrorMessages = [
+            // 13 symbolic error names (spec §4.7)
+            'InvalidToken'           => __('We could not process this card. Please try again.', 'woocommerce-mercadopago'),
+            'PaymentRejected'        => __('Payment was declined by the card issuer.', 'woocommerce-mercadopago'),
+            'ThreeDsFailed'          => __('3D Secure authentication failed. Please try another card.', 'woocommerce-mercadopago'),
+            'CardCustomerMismatch'   => __('A technical error occurred. Please contact support.', 'woocommerce-mercadopago'),
+            'CardExpired'            => __('The card linked to this subscription has expired. Please update the card.', 'woocommerce-mercadopago'),
+            'CustomerNotFound'       => __('A technical error occurred. Please contact support.', 'woocommerce-mercadopago'),
+            'SubscriptionNotFound'   => __('A technical error occurred. Please contact support.', 'woocommerce-mercadopago'),
+            'PaymentMethodNotFound'  => '',
+            'LastPaymentMethod'      => '',
+            'CannotRemoveDefault'    => '',
+            'AlreadyDefault'         => '',
+            'SaveCardFailed'         => __('We could not save the card. Please try again.', 'woocommerce-mercadopago'),
+            'IdempotencyKeyReused'   => __('A technical error occurred. Please contact support.', 'woocommerce-mercadopago'),
+
+            // Stable Core P&P codes (spec §4.7 - "Códigos estáveis")
+            'CPP_TAAP_0000001'       => __('We could not process this card. Please try again.', 'woocommerce-mercadopago'),
+            'CPP_TAAP_0602002'       => __('We could not complete the operation. Please try another card.', 'woocommerce-mercadopago'),
+
+            // HTTP-level fallbacks
+            'http_unavailable'       => __('Service temporarily unavailable. Please try again in a moment.', 'woocommerce-mercadopago'),
+
+            // Generic catch-all
+            'generic'                => __('A technical error occurred. Please contact support.', 'woocommerce-mercadopago'),
         ];
     }
 }

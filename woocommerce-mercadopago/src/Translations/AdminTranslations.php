@@ -452,13 +452,13 @@ class AdminTranslations
         $currencyConversionDescriptionsEnabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('enabled', 'woocommerce-mercadopago')
+            _x('enabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $currencyConversionDescriptionsDisabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('disabled', 'woocommerce-mercadopago')
+            _x('disabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $autoReturnDescriptionsEnabled = sprintf(
@@ -592,13 +592,13 @@ class AdminTranslations
         $currencyConversionDescriptionsEnabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('enabled', 'woocommerce-mercadopago')
+            _x('enabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $currencyConversionDescriptionsDisabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('disabled', 'woocommerce-mercadopago')
+            _x('disabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $this->creditsGatewaySettings = [
@@ -727,25 +727,25 @@ class AdminTranslations
         $currencyConversionDescriptionsEnabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('enabled', 'woocommerce-mercadopago')
+            _x('enabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $currencyConversionDescriptionsDisabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('disabled', 'woocommerce-mercadopago')
+            _x('disabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $walletButtonDescriptionsEnabled = sprintf(
             '%s <b>%s</b>.',
             __('Payments via Mercado Pago accounts are', 'woocommerce-mercadopago'),
-            __('enabled', 'woocommerce-mercadopago')
+            _x('enabled', 'payments via account (plural)', 'woocommerce-mercadopago')
         );
 
         $walletButtonDescriptionsDisabled = sprintf(
             '%s <b>%s</b>.',
             __('Payments via Mercado Pago accounts are', 'woocommerce-mercadopago'),
-            __('disabled', 'woocommerce-mercadopago')
+            _x('disabled', 'payments via account (plural)', 'woocommerce-mercadopago')
         );
 
         $binaryModeDescriptionsEnabled = sprintf(
@@ -773,7 +773,7 @@ class AdminTranslations
             'card_settings_subtitle'                    => __('Set the deadlines and fees, test your store or access the Plugin manual.', 'woocommerce-mercadopago'),
             'card_settings_button_text'                 => __('Go to Settings', 'woocommerce-mercadopago'),
             'enabled_title'                             => __('Enable the checkout', 'woocommerce-mercadopago'),
-            'enabled_subtitle'                          => __('By disabling it, you will disable all credit cards payments from Mercado Pago Transparent Checkout.', 'woocommerce-mercadopago'),
+            'enabled_subtitle'                          => __('By disabling it, you will disable all credit card payments from Mercado Pago Transparent Checkout.', 'woocommerce-mercadopago'),
             'enabled_descriptions_enabled_ALL'          => $enabledDescriptionsEnabledAll,
             'enabled_descriptions_disabled_ALL'         => $enabledDescriptionsDisabledAll,
             'enabled_descriptions_enabled_MLB'          => $enabledDescriptionsEnabledMLB,
@@ -804,7 +804,25 @@ class AdminTranslations
             'discount_checkbox_label'                   => __('Activate and show this information on Mercado Pago Checkout', 'woocommerce-mercadopago'),
             'commission_title'                          => __('Commission in Mercado Pago Checkouts', 'woocommerce-mercadopago'),
             'commission_description'                    => __('Choose an additional percentage value that you want to charge as commission to your customers for paying with Mercado Pago.', 'woocommerce-mercadopago'),
-            'commission_checkbox_label'                 => __('Activate and show this information on Mercado Pago Checkout', 'woocommerce-mercadopago'),
+            'commission_checkbox_label'                              => __('Activate and show this information on Mercado Pago Checkout', 'woocommerce-mercadopago'),
+            'subscriptions_enabled_title'                            => __('Enable recurring payments', 'woocommerce-mercadopago'),
+            'subscriptions_enabled_subtitle'                         => __('Allow your customers to subscribe to products and services and be charged automatically.', 'woocommerce-mercadopago'),
+            'subscriptions_enabled_description_enabled'              => __('Recurring payments are active.', 'woocommerce-mercadopago'),
+            'subscriptions_enabled_description_disabled'             => __('Recurring payments are disabled.', 'woocommerce-mercadopago'),
+            'subscriptions_disable_modal_title'                      => __('Disable recurring payments?', 'woocommerce-mercadopago'),
+            'subscriptions_disable_modal_body'                       => __('By disabling, new subscriptions of your customers will not be able to be charged by Mercado Pago.', 'woocommerce-mercadopago'),
+            'subscriptions_disable_modal_keep'                       => __('Keep active', 'woocommerce-mercadopago'),
+            'subscriptions_disable_modal_confirm'                    => __('Deactivate', 'woocommerce-mercadopago'),
+            'subscriptions_access_token_prod_title'                  => __('Recurring payment credential (Production)', 'woocommerce-mercadopago'),
+            'subscriptions_access_token_prod_description'            => __('Token to process subscriptions in production.', 'woocommerce-mercadopago'),
+            'subscriptions_access_token_test_title'                  => __('Recurring payment credential (Sandbox)', 'woocommerce-mercadopago'),
+            'subscriptions_access_token_test_description'            => __('Token to process subscriptions in tests.', 'woocommerce-mercadopago'),
+            'subscriptions_public_key_prod_title'                    => __('Recurring payment public key (Production)', 'woocommerce-mercadopago'),
+            'subscriptions_public_key_prod_description'              => __('Public key to tokenize cards in production.', 'woocommerce-mercadopago'),
+            'subscriptions_public_key_test_title'                    => __('Recurring payment public key (Sandbox)', 'woocommerce-mercadopago'),
+            'subscriptions_public_key_test_description'              => __('Public key to tokenize cards in tests.', 'woocommerce-mercadopago'),
+            'subscriptions_notice_title'                             => __('This feature is available only for pre-approved sellers.', 'woocommerce-mercadopago'),
+            'subscriptions_notice_description'                       => __('If you have a Mercado Pago consultant, contact them to obtain the credentials for this section.', 'woocommerce-mercadopago'),
         ];
         $this->customGatewaySettings  = array_merge($this->customGatewaySettings, $this->setSupportLinkTranslations());
     }
@@ -819,13 +837,13 @@ class AdminTranslations
         $currencyConversionDescriptionsEnabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('enabled', 'woocommerce-mercadopago')
+            _x('enabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $currencyConversionDescriptionsDisabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('disabled', 'woocommerce-mercadopago')
+            _x('disabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $this->ticketGatewaySettings = [
@@ -881,13 +899,13 @@ class AdminTranslations
         $currencyConversionDescriptionsEnabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('enabled', 'woocommerce-mercadopago')
+            _x('enabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $currencyConversionDescriptionsDisabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('disabled', 'woocommerce-mercadopago')
+            _x('disabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $this->pseGatewaySettings = [
@@ -953,13 +971,13 @@ class AdminTranslations
         $currencyConversionDescriptionsEnabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('enabled', 'woocommerce-mercadopago')
+            _x('enabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $currencyConversionDescriptionsDisabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('disabled', 'woocommerce-mercadopago')
+            _x('disabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $stepsStepTwoText = sprintf(
@@ -1053,13 +1071,13 @@ class AdminTranslations
         $currencyConversionDescriptionsEnabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('enabled', 'woocommerce-mercadopago')
+            _x('enabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
         $currencyConversionDescriptionsDisabled = sprintf(
             '%s <b>%s</b>.',
             __('Currency conversion is', 'woocommerce-mercadopago'),
-            __('disabled', 'woocommerce-mercadopago')
+            _x('disabled', 'currency conversion (feminine)', 'woocommerce-mercadopago')
         );
 
 
@@ -1535,7 +1553,6 @@ class AdminTranslations
             'payment_too_old'           => __('This payment is too old to be refunded. If you need help, please contact the Mercado Pago support team.', 'woocommerce-mercadopago'),
             'unauthorized'              => __('Your access credentials are incorrect or have expired. Please renew your credentials in the Mercado Pago settings and try again.', 'woocommerce-mercadopago'),
             'unknown_error'             => __('Something went wrong. Please contact the Mercado Pago support team and we will help you resolve it.', 'woocommerce-mercadopago'),
-            'supertoken_not_supported'  => __('This payment was made using Fast Pay with Mercado Pago and does not yet support refunds through the WooCommerce order page. Please process the refund directly from your Mercado Pago payment details page.', 'woocommerce-mercadopago'),
         ];
     }
 }

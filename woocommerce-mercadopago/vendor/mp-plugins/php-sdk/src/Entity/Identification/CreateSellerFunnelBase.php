@@ -13,6 +13,8 @@ use MercadoPago\PP\Sdk\HttpClient\Response;
  * @property string $platform_version
  * @property string $plugin_version
  * @property string $site_id
+ * @property string|null $email
+ * @property string|null $country Free-text country name (e.g. "Brazil"), no fixed format enforced.
  *
  * @package MercadoPago\PP\Sdk\Entity\Identification
  */
@@ -44,6 +46,16 @@ class CreateSellerFunnelBase extends AbstractEntity
     protected $site_id;
 
     /**
+     * @var string|null
+     */
+    protected $email;
+
+    /**
+     * @var string|null
+     */
+    protected $country;
+
+    /**
      * Identification constructor.
      *
      * @param Manager|null $manager
@@ -58,7 +70,7 @@ class CreateSellerFunnelBase extends AbstractEntity
      *
      * @return array
      */
-    public function getUris(string $uris_scope = null): array
+    public function getUris(?string $uris_scope = null): array
     {
         $scope_ppcore = $uris_scope === 'beta' ? 'beta' : 'v1';
 

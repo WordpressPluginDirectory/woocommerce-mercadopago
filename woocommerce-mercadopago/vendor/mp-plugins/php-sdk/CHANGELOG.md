@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## V3.7.0
+### Added
+- Add `email` and `country` (nullable) fields to `CreateSellerFunnelBase` and `UpdateSellerFunnelBase` entities, allowing the WooCommerce plugin to send the seller's e-mail and country at `start-integration` and `update-integration`
+
+## V3.6.1
+### Fixed
+- Guard `PHP_VERSION_ID < 80500` added to `curlClose()` in `CurlRequester` to avoid `E_DEPRECATED` notice emitted by `curl_close()` on PHP 8.5+. Behavior is unchanged for PHP < 8.5, where `curl_close()` continues to be called explicitly. Addresses PSW-4158.
+
+## V3.6.0
+### Added
+- Add `is_subscription_enabled` (nullable boolean) field to `UpdateSellerFunnelBase` entity, allowing the WooCommerce team to persist whether the subscription feature is enabled for a given seller via the `update-integration` endpoint
+
+## V3.5.0
+### Added
+- Add `ApiException` class that extends `\Exception` and preserves `error` (CPP_AT code), `status`, and `original_message` fields from API 4xx response payloads. `Manager::handleResponse()` and `handleResponseWithHeaders()` now throw `ApiException` instead of `\Exception`, enabling consumers to access the full error context via `getErrorCode()`, `getApiStatus()`, and `getOriginalMessage()` while remaining backward compatible with existing `catch (\Exception $e)` blocks
+
+## V3.4.1
+### Added
+- Claude Code configuration via claudify: `CLAUDE.md` with project architecture and conventions, architectural rules (`entity.md`, `httpclient.md`), and skills (`run-tests`, `fix-lint`, `create-spec`, `commit`, `review-changes`) to support AI-assisted development workflows
+
+## V3.4.0
+### Added
+- Add the new `is_prime_user` field to the `Preference\Payer` entity to identify the primary user
+- Add the new `is_prime_user` field to the `Payment\AdditionalInfoPayer` entity to identify the primary user in additional information
+
+## V3.3.2
+### Changed 
+- Making explicit the nullity of parameters with the default value null, as Adobe's MarketPlace started validating PHP version 8.4.
+
+## V3.3.1
+### Changed 
+- Making explicit the nullity of parameters with the default value null, as Adobe's MarketPlace started validating PHP version 8.4.
+
 ## V3.3.0
 ### Added
 - Add new attribute `location` to `point_of_interaction` on `Payment` entity

@@ -44,7 +44,9 @@ class ErrorMessages
             $this->getCommonMessagesMapping(),
             $this->getCheckoutErrorMessagesV2Mapping(),
             $this->getErrorMessagesV1(),
-            $this->getErrorMessagesV2()
+            $this->getErrorMessagesV2(),
+            $this->getSuperTokenApiErrorMessagesMapping(),
+            $this->getSuperTokenOriginalMessageErrorsMapping()
         );
     }
 
@@ -187,6 +189,7 @@ class ErrorMessages
     {
         return [
             'cho_form_error' => $this->storeTranslations->commonMessages['cho_form_error'],
+            'missing_credentials_at_payment' => $this->storeTranslations->commonMessages['missing_credentials_at_payment'],
         ];
     }
 
@@ -250,6 +253,7 @@ class ErrorMessages
             "Installments attribute must be numeric"                                        => $this->storeTranslations->checkoutErrorMessages['invalid_installments'],
             "Not found card on whitelist"                                                   => $this->storeTranslations->checkoutErrorMessages['card_not_whitelisted'],
             "Not found payment_method"                                                      => $this->storeTranslations->checkoutErrorMessages['payment_method_unavailable'],
+            "bin_not_found"                                                                 => $this->storeTranslations->checkoutErrorMessages['card_details_incorrect'],
         ];
     }
 
@@ -289,5 +293,49 @@ class ErrorMessages
     public function getDefaultErrorMessage(): string
     {
         return $this->storeTranslations->buyerRefusedMessages['buyer_default'];
+    }
+
+    /**
+     * Returns the ag-transaction CPP_AT error code → localized message mapping.
+     * The map is owned by StoreTranslations::$superTokenApiErrors and set via setSuperTokenApiErrorTranslations().
+     * To add a new CPP_AT message, add it there — no changes needed here.
+     *
+     * @return array<string, string>
+     */
+    private function getSuperTokenApiErrorMessagesMapping(): array
+    {
+        return $this->storeTranslations->superTokenApiErrors;
+    }
+
+    /**
+     * Returns the original_message substring → localized message mapping.
+     * Used for errors that have no top-level error code but appear in the raw error chain.
+     *
+     * @return array<string, string>
+     */
+    private function getSuperTokenOriginalMessageErrorsMapping(): array
+    {
+        return $this->storeTranslations->superTokenOriginalMessageErrors;
+    }
+
+    /**
+     * Scans the raw error chain (original_message) for known error substrings and returns
+     * the matching code so that findErrorMessage() can resolve the translation.
+     *
+     * @param string|null $originalMessage
+     *
+     * @return string|null The matching code key, or null if none found.
+     */
+    public function findCodeInOriginalMessage(?string $originalMessage): ?string
+    {
+        if (empty($originalMessage)) {
+            return null;
+        }
+        foreach ($this->storeTranslations->superTokenOriginalMessageErrors as $code => $message) {
+            if (strpos($originalMessage, $code) !== false) {
+                return $code;
+            }
+        }
+        return null;
     }
 }

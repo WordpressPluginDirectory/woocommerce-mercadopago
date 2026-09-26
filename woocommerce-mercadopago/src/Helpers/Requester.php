@@ -89,6 +89,27 @@ class Requester
         }
     }
 
+    /**
+     * @param string $uri
+     * @param array $headers
+     * @param array $body
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function delete(string $uri, array $headers = [], array $body = []): Response
+    {
+        try {
+            $payload = empty($body) ? null : json_encode($body);
+            $response = $this->httpClient->send('DELETE', $uri, $headers, $payload);
+            $this->checkResponseForErrors($response, $uri);
+            return $response;
+        } catch (Exception $e) {
+            $this->sendApiErrorMetric($uri, 0, $e->getMessage());
+            throw $e;
+        }
+    }
+
     private function checkResponseForErrors(Response $response, string $uri): void
     {
         $status = $response->getStatus();
@@ -100,7 +121,7 @@ class Requester
     // $status = 0 is the convention for pre-response exceptions (connection/timeout); >= 400 for HTTP error responses.
     private function sendApiErrorMetric(string $uri, int $status, string $message): void
     {
-        $details = MetricContext::buildApiErrorDetails($uri);
+        $details = MetricContext::buildBaseMetricDetails($uri);
         $this->datadog->sendEvent('mp_api_error', (string) $status, $message, null, $details);
     }
 

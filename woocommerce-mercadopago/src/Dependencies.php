@@ -9,8 +9,11 @@ use MercadoPago\Woocommerce\Configs\Metadata;
 use MercadoPago\Woocommerce\Endpoints\IntegrationWebhook;
 use MercadoPago\Woocommerce\Funnel\Funnel;
 use MercadoPago\Woocommerce\Helpers\Actions;
+use MercadoPago\Woocommerce\Helpers\AutomaticPaymentsClient;
+use MercadoPago\Woocommerce\Helpers\SubscriptionsCredentialsValidator;
 use MercadoPago\Woocommerce\Helpers\Cart;
 use MercadoPago\Woocommerce\Helpers\ErrorMessages;
+use MercadoPago\Woocommerce\Helpers\SubscriptionsHelper;
 use MercadoPago\Woocommerce\Helpers\I18n;
 use MercadoPago\Woocommerce\Helpers\Images;
 use MercadoPago\Woocommerce\Helpers\Session;
@@ -20,6 +23,7 @@ use MercadoPago\Woocommerce\Order\OrderMetadata;
 use MercadoPago\Woocommerce\Configs\Seller;
 use MercadoPago\Woocommerce\Configs\Store;
 use MercadoPago\Woocommerce\Endpoints\CheckoutCustom;
+use MercadoPago\Woocommerce\Endpoints\CheckoutValidation;
 use MercadoPago\Woocommerce\Helpers\Cache;
 use MercadoPago\Woocommerce\Helpers\Country;
 use MercadoPago\Woocommerce\Helpers\CredentialsStates;
@@ -46,6 +50,7 @@ use MercadoPago\Woocommerce\Hooks\OrderMeta;
 use MercadoPago\Woocommerce\Hooks\Plugin;
 use MercadoPago\Woocommerce\Hooks\Product;
 use MercadoPago\Woocommerce\Hooks\Scripts;
+use MercadoPago\Woocommerce\Hooks\Subscriptions as SubscriptionsHook;
 use MercadoPago\Woocommerce\Hooks\Template;
 use MercadoPago\Woocommerce\HealthMonitor\ScriptHealthMonitor;
 use MercadoPago\Woocommerce\Libraries\Logs\Logs;
@@ -56,6 +61,10 @@ use MercadoPago\Woocommerce\Order\OrderStatus;
 use MercadoPago\Woocommerce\Translations\AdminTranslations;
 use MercadoPago\Woocommerce\Translations\StoreTranslations;
 use MercadoPago\Woocommerce\IO\Downloader;
+use MercadoPago\Woocommerce\SuperToken\SuperTokenPaymentProcessor;
+use MercadoPago\Woocommerce\SuperToken\SuperTokenValidator;
+use MercadoPago\Woocommerce\SuperToken\Adapters\DefaultSuperTokenTransactionFactory;
+use MercadoPago\Woocommerce\SuperToken\Adapters\OrderMetadataSuperTokenWriter;
 use WooCommerce;
 
 if (!defined('ABSPATH')) {
@@ -79,6 +88,8 @@ class Dependencies
     public Store $storeConfig;
 
     public CheckoutCustom $checkoutCustomEndpoints;
+
+    public CheckoutValidation $checkoutValidationEndpoints;
 
     public Admin $adminHook;
 
@@ -128,6 +139,14 @@ class Dependencies
 
     public ErrorMessages $errorMessagesHelper;
 
+    public SubscriptionsHelper $subscriptionsHelper;
+
+    public AutomaticPaymentsClient $automaticPaymentsClient;
+
+    public SubscriptionsCredentialsValidator $subscriptionsCredentialsValidator;
+
+    public SubscriptionsHook $subscriptionsHook;
+
     public Gateways $gatewaysHelper;
 
     public Images $imagesHelper;
@@ -170,6 +189,8 @@ class Dependencies
 
     public IntegrationWebhook $integrationWebhook;
 
+    public SuperTokenPaymentProcessor $superTokenPaymentProcessor;
+
     /**
      * Dependencies constructor
      */
@@ -199,6 +220,7 @@ class Dependencies
         $this->storeConfig             = $this->setStore();
         $this->logs                    = $this->setLogs();
         $this->orderMetadata           = $this->setOrderMetadata();
+        $this->superTokenPaymentProcessor = $this->setSuperTokenPaymentProcessor();
         $this->sellerConfig            = $this->setSeller();
         $this->countryHelper           = $this->setCountry();
         $this->urlHelper               = $this->setUrl();
@@ -225,11 +247,16 @@ class Dependencies
         $this->settings                = $this->setSettings();
         $this->creditsEnabledHelper    = $this->setCreditsEnabled();
         $this->checkoutCustomEndpoints = $this->setCustomCheckoutEndpoints();
+        $this->checkoutValidationEndpoints = $this->setCheckoutValidationEndpoints();
         $this->cartHelper              = $this->setCart();
         $this->errorMessagesHelper     = $this->setErrorMessages();
+        $this->subscriptionsHelper              = $this->setSubscriptionsHelper();
+        $this->automaticPaymentsClient          = $this->setAutomaticPaymentsClient();
+        $this->subscriptionsCredentialsValidator = $this->setSubscriptionsCredentialsValidator();
         $this->integrationWebhook      = $this->setIntegrationWebhook();
         $this->hooks                   = $this->setHooks();
         $this->helpers                 = $this->setHelpers();
+        $this->subscriptionsHook                = $this->setSubscriptionsHook();
 
         I18n::boot($this->adminTranslations, $this->storeTranslations);
     }
@@ -240,6 +267,18 @@ class Dependencies
     private function setOrderMetadata(): OrderMetadata
     {
         return new OrderMetadata($this->orderMetaHook, $this->logs);
+    }
+
+    /**
+     * @return SuperTokenPaymentProcessor
+     */
+    private function setSuperTokenPaymentProcessor(): SuperTokenPaymentProcessor
+    {
+        return new SuperTokenPaymentProcessor(
+            new SuperTokenValidator(),
+            new DefaultSuperTokenTransactionFactory(),
+            new OrderMetadataSuperTokenWriter($this->orderMetadata)
+        );
     }
 
     /**
@@ -466,7 +505,6 @@ class Dependencies
             $this->cacheHelper,
             $this->countryHelper,
             $this->noticesHelper,
-            $this->requesterHelper,
             $this->sellerConfig,
             $this->optionsHook,
             $this->urlHelper,
@@ -542,6 +580,17 @@ class Dependencies
     }
 
     /**
+     * @return CheckoutValidation
+     */
+    private function setCheckoutValidationEndpoints(): CheckoutValidation
+    {
+        return new CheckoutValidation(
+            $this->endpointsHook,
+            $this->nonceHelper
+        );
+    }
+
+    /**
      * @return Cart
      */
     private function setCart(): Cart
@@ -608,6 +657,38 @@ class Dependencies
     private function setErrorMessages(): ErrorMessages
     {
         return new ErrorMessages($this->storeTranslations);
+    }
+
+    private function setSubscriptionsHook(): SubscriptionsHook
+    {
+        return new SubscriptionsHook(
+            $this->automaticPaymentsClient,
+            $this->subscriptionsHelper,
+            $this->storeConfig,
+            $this->logs,
+            $this->helpers,
+            $this->orderMetadata
+        );
+    }
+
+    private function setSubscriptionsHelper(): SubscriptionsHelper
+    {
+        return new SubscriptionsHelper($this->storeTranslations);
+    }
+
+    private function setSubscriptionsCredentialsValidator(): SubscriptionsCredentialsValidator
+    {
+        return new SubscriptionsCredentialsValidator($this->requesterHelper, $this->logs);
+    }
+
+    private function setAutomaticPaymentsClient(): AutomaticPaymentsClient
+    {
+        return new AutomaticPaymentsClient(
+            $this->requesterHelper,
+            $this->subscriptionsHelper,
+            $this->logs,
+            $this->storeConfig->isTestMode()
+        );
     }
 
     private function setIntegrationWebhook(): IntegrationWebhook

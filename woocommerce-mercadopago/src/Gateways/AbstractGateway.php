@@ -5,9 +5,11 @@ namespace MercadoPago\Woocommerce\Gateways;
 use ArrayAccess;
 use Exception;
 use MercadoPago\Woocommerce\Helpers\Arrays;
+use MercadoPago\Woocommerce\Helpers\Device;
 use MercadoPago\Woocommerce\Helpers\Form;
 use MercadoPago\Woocommerce\Helpers\Numbers;
 use MercadoPago\Woocommerce\WoocommerceMercadoPago;
+use MercadoPago\Woocommerce\Endpoints\CheckoutValidation;
 use MercadoPago\Woocommerce\Interfaces\MercadoPagoGatewayInterface;
 use MercadoPago\Woocommerce\Notification\NotificationFactory;
 use MercadoPago\Woocommerce\Exceptions\InvalidCheckoutDataException;
@@ -35,21 +37,21 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
 
     public string $iconAdmin;
 
-    public int $commission;
+    public float $commission;
 
-    public int $discount;
+    public float $discount;
 
     public int $expirationDate;
 
     public string $checkoutCountry;
 
-    // TODO(PHP8.2): Change type hint from phpdoc to native
+    // TODO(PSW-2879): Change type hint from phpdoc to native once PHP min version is 8.2
     /**
      * @var array|ArrayAccess
      */
     public $adminTranslations;
 
-    // TODO(PHP8.2): Change type hint from phpdoc to native
+    // TODO(PSW-2879): Change type hint from phpdoc to native once PHP min version is 8.2
     /**
      * @var array|ArrayAccess
      */
@@ -61,7 +63,7 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
 
     private static bool $amountCurrencyErrorSent = false;
 
-    // TODO(PHP8.2): Change type hint from phpdoc to native
+    // TODO(PSW-2879): Change type hint from phpdoc to native once PHP min version is 8.2
     /**
      * @var array|ArrayAccess
      */
@@ -248,12 +250,55 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
         ];
     }
 
-    protected function isMissingCredentials(): bool
+    /**
+     * Check whether the seller credentials required to operate this gateway are missing.
+     *
+     * Single source of truth for credential guards across:
+     * - is_available() (Classic checkout display)
+     * - AbstractBlock::is_active() (Blocks checkout display)
+     * - process_payment() (payment processing)
+     * - Helpers\Gateways::getEnabledPaymentGateways() (Funnel reporting)
+     *
+     * @return bool
+     */
+    public function isMissingCredentials(): bool
     {
         return Arrays::anyEmpty([
             $this->mercadopago->sellerConfig->getCredentialsPublicKey(),
             $this->mercadopago->sellerConfig->getCredentialsAccessToken()
         ]);
+    }
+
+    /**
+     * WooCommerce per-request availability check.
+     *
+     * Returns false when WC-native availability rejects the gateway or when
+     * seller credentials are missing.
+     *
+     * @return bool
+     */
+    public function is_available(): bool
+    {
+        if (!$this->isParentAvailable()) {
+            return false;
+        }
+
+        if ($this->isMissingCredentials()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Wraps parent::is_available() so tests can override it without invoking
+     * the WC class hierarchy.
+     *
+     * @return bool
+     */
+    protected function isParentAvailable(): bool
+    {
+        return (bool) parent::is_available();
     }
 
     protected function missingCredentialsFormFieldNotice(): array
@@ -330,9 +375,17 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
      */
     public function registerAdminScripts()
     {
+        $translations = $this->mercadopago->adminTranslations->customGatewaySettings;
+
         $this->mercadopago->hooks->scripts->registerAdminScript(
             'wc_mercadopago_admin_components',
-            $this->mercadopago->helpers->url->getJsAsset('admin/mp-admin-configs')
+            $this->mercadopago->helpers->url->getJsAsset('admin/mp-admin-configs'),
+            [
+                'subscriptions_disable_modal_title'   => $translations['subscriptions_disable_modal_title']   ?? '',
+                'subscriptions_disable_modal_body'    => $translations['subscriptions_disable_modal_body']    ?? '',
+                'subscriptions_disable_modal_keep'    => $translations['subscriptions_disable_modal_keep']    ?? '',
+                'subscriptions_disable_modal_confirm' => $translations['subscriptions_disable_modal_confirm'] ?? '',
+            ]
         );
 
         $this->mercadopago->hooks->scripts->registerAdminStyle(
@@ -384,9 +437,18 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
             $this->mercadopago->helpers->url->getCssAsset('checkouts/mp-plugins-components')
         );
 
+        // validationEndpoint is localized as a page-wide global (wc_mercadopago_checkout_update_params)
+        // attached to this gateway-agnostic shared script. It is NOT consumed by mp-checkout-update.js
+        // itself, but by the checkout pre-validation flow in
+        // assets/js/checkouts/custom/entities/event-handler.js (validateCheckoutThenContinue). This is the
+        // same cross-script localize pattern already used by wc_mercadopago_checkout_session_data_register
+        // (consumed by mp-health-monitor.js). Kept here so any gateway can reuse the endpoint if needed.
         $this->mercadopago->hooks->scripts->registerCheckoutScript(
             'wc_mercadopago_checkout_update',
-            $this->mercadopago->helpers->url->getJsAsset('checkouts/mp-checkout-update')
+            $this->mercadopago->helpers->url->getJsAsset('checkouts/mp-checkout-update'),
+            [
+                'validationEndpoint' => \WC_AJAX::get_endpoint(CheckoutValidation::VALIDATION_ENDPOINT),
+            ]
         );
 
         $this->mercadopago->hooks->scripts->registerCheckoutScript(
@@ -401,6 +463,11 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
                 'currency'          => $this->countryConfigs['currency'],
                 'cust_id'           => $this->mercadopago->sellerConfig->getCustIdFromAT(),
             ]
+        );
+
+        $this->mercadopago->hooks->scripts->registerCheckoutScript(
+            'wc_mercadopago_sdk_metrics',
+            $this->mercadopago->helpers->url->getJsAsset('checkouts/mp-sdk-metrics')
         );
     }
 
@@ -451,6 +518,23 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
     {
         try {
             $order = wc_get_order($order_id);
+
+            if ($this->isMissingCredentials()) {
+                $this->mercadopago->logs->file->error(
+                    "Payment attempt blocked: gateway enabled without credentials",
+                    static::LOG_SOURCE,
+                    ['gateway_id' => static::ID, 'order_id' => $order_id]
+                );
+
+                $this->datadog->sendEvent(
+                    'MP_CHECKOUT_BLOCKED_MISSING_CREDENTIALS',
+                    static::ID,
+                    'Payment attempt blocked because gateway has no credentials configured',
+                    $this->paymentMethodName
+                );
+
+                throw new InvalidCheckoutDataException('missing_credentials_at_payment');
+            }
 
             $discount   = $this->mercadopago->helpers->cart->calculateSubtotalWithDiscount($this);
             $commission = $this->mercadopago->helpers->cart->calculateSubtotalWithCommission($this);
@@ -609,11 +693,17 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
 
         $this->mercadopago->hooks->gateway->registerBeforeThankYou(function ($orderId) {
             $order         = wc_get_order($orderId);
+
+            if (!$order) {
+                return;
+            }
+
             $paymentMethod = $order->get_payment_method();
 
             foreach ($this->mercadopago->storeConfig->getAvailablePaymentGateways() as $gateway) {
                 if ($gateway::ID === $paymentMethod) {
                     $this->mercadopago->hooks->scripts->registerMelidataStoreScript('/thankyou', $paymentMethod);
+                    break;
                 }
             }
         });
@@ -651,7 +741,10 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
         }
         $datadogMessage = $originalMessage . ' ' . implode(' ', $tagParts);
 
-        $this->datadog->sendEvent('woo_checkout_error', $translatedMessage, $datadogMessage, $this->paymentMethodName);
+        $this->datadog->sendEvent('woo_checkout_error', $translatedMessage, $datadogMessage, $this->paymentMethodName, [
+            'cust_id' => $this->mercadopago->sellerConfig->getCustIdFromAT(),
+            'device'  => Device::getDeviceType(),
+        ]);
 
         if ($notice) {
             $this->mercadopago->helpers->notices->storeNotice($translatedMessage, 'error');
@@ -1186,5 +1279,10 @@ abstract class AbstractGateway extends WC_Payment_Gateway implements MercadoPago
     public function getPaymentMethodName(): string
     {
         return $this->paymentMethodName;
+    }
+
+    public function setPaymentMethodName(string $paymentMethodName): void
+    {
+        $this->paymentMethodName = $paymentMethodName;
     }
 }

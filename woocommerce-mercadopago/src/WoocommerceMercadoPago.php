@@ -12,6 +12,10 @@ use MercadoPago\Woocommerce\Blocks\TicketBlock;
 use MercadoPago\Woocommerce\Blocks\PseBlock;
 use MercadoPago\Woocommerce\Blocks\YapeBlock;
 use MercadoPago\Woocommerce\Configs\Metadata;
+use MercadoPago\Woocommerce\Helpers\AutomaticPaymentsClient;
+use MercadoPago\Woocommerce\Helpers\SubscriptionsCredentialsValidator;
+use MercadoPago\Woocommerce\Helpers\SubscriptionsHelper;
+use MercadoPago\Woocommerce\Hooks\Subscriptions as SubscriptionsHook;
 use MercadoPago\Woocommerce\Funnel\Funnel;
 use MercadoPago\Woocommerce\Helpers\Paths;
 use MercadoPago\Woocommerce\Order\OrderBilling;
@@ -26,6 +30,7 @@ use MercadoPago\Woocommerce\Translations\StoreTranslations;
 use MercadoPago\Woocommerce\Helpers\Country;
 use MercadoPago\Woocommerce\Helpers\Strings;
 use MercadoPago\Woocommerce\HealthMonitor\FileIntegrityChecker;
+use MercadoPago\Woocommerce\SuperToken\SuperTokenPaymentProcessor;
 use WooCommerce;
 
 if (!defined('ABSPATH')) {
@@ -34,7 +39,7 @@ if (!defined('ABSPATH')) {
 
 class WoocommerceMercadoPago
 {
-    private const PLUGIN_VERSION = '8.7.20';
+    private const PLUGIN_VERSION = '8.9.5';
 
     private const PLUGIN_MIN_PHP = '7.4';
 
@@ -49,6 +54,8 @@ class WoocommerceMercadoPago
     private const PLUGIN_NAME = 'woocommerce-mercadopago/woocommerce-mercadopago.php';
 
     private const PLUGIN_SUPER_TOKEN_USE_BUNDLE = true;
+
+    private const PLUGIN_SUPER_TOKEN_VERSION = 'v2.1';
 
     private const PLUGIN_SDK_ENV = 'prod';
 
@@ -83,6 +90,16 @@ class WoocommerceMercadoPago
     public Funnel $funnel;
 
     public Country $country;
+
+    public \MercadoPago\Woocommerce\Helpers\SubscriptionsHelper $subscriptionsHelper;
+
+    public SuperTokenPaymentProcessor $superTokenPaymentProcessor;
+
+    public \MercadoPago\Woocommerce\Helpers\AutomaticPaymentsClient $automaticPaymentsClient;
+
+    public SubscriptionsCredentialsValidator $subscriptionsCredentialsValidator;
+
+    public SubscriptionsHook $subscriptionsHook;
 
     private static bool $booted = false;
 
@@ -122,6 +139,7 @@ class WoocommerceMercadoPago
     public function registerHooks(): void
     {
         add_action('init', [$this, 'loadPluginTextDomain'], 0);
+        add_action('init', [$this, 'runMigrations'], 0);
         add_action('init', [$this, 'init'], 1);
         add_filter('query_vars', function ($vars) {
             $vars[] = 'wallet_button';
@@ -282,6 +300,27 @@ class WoocommerceMercadoPago
     }
 
     /**
+     * Run one-time data migrations keyed by version.
+     * Deletes stale cached options so they are refreshed from the API on next load.
+     *
+     * @return void
+     */
+    public function runMigrations(): void
+    {
+        $installedVersion = get_option('_mp_installed_version', '0.0.0');
+
+        if ($installedVersion === self::PLUGIN_VERSION) {
+            return;
+        }
+
+        if (version_compare($installedVersion, '8.8.0', '<')) {
+            delete_option('_all_payment_methods_ticket');
+        }
+
+        update_option('_mp_installed_version', self::PLUGIN_VERSION);
+    }
+
+    /**
      * Function hook disabled plugin
      *
      * @return void
@@ -296,9 +335,20 @@ class WoocommerceMercadoPago
      */
     public function activatePlugin(): void
     {
-        $after = fn() => $this->storeConfig->setExecuteActivate(false);
+        $disableActivate = fn() => $this->storeConfig->setExecuteActivate(false);
 
-        $this->funnel->created() ? $this->funnel->updateStepActivate($after) : $this->funnel->create($after);
+        if ($this->funnel->created()) {
+            $this->funnel->updateStepActivate($disableActivate);
+            return;
+        }
+
+        // Chained inside create()'s $after, not updateStepCredentials(): the seller
+        // contact step must reach sellers who install the plugin but never add
+        // credentials, and updateStepCredentials() never runs for that audience.
+        $this->funnel->create(function () use ($disableActivate) {
+            $disableActivate();
+            $this->funnel->updateStepSellerContact();
+        });
     }
 
     /**
@@ -341,6 +391,9 @@ class WoocommerceMercadoPago
         // General
         $this->logs = $dependencies->logs;
 
+        $this->subscriptionsHelper     = $dependencies->subscriptionsHelper;
+        $this->automaticPaymentsClient = $dependencies->automaticPaymentsClient;
+
         // Exclusive
         $this->settings = $dependencies->settings;
 
@@ -352,6 +405,12 @@ class WoocommerceMercadoPago
         $this->country = $dependencies->countryHelper;
 
         $this->funnel = $dependencies->funnel;
+
+        $this->subscriptionsCredentialsValidator = $dependencies->subscriptionsCredentialsValidator;
+        $this->subscriptionsHook                 = $dependencies->subscriptionsHook;
+
+        // Super Token
+        $this->superTokenPaymentProcessor = $dependencies->superTokenPaymentProcessor;
     }
 
     /**
@@ -453,6 +512,7 @@ class WoocommerceMercadoPago
         $this->define('MP_PRODUCT_ID_DESKTOP', self::PRODUCT_ID_DESKTOP);
         $this->define('MP_PRODUCT_ID_MOBILE', self::PRODUCT_ID_MOBILE);
         $this->define('MP_SUPER_TOKEN_USE_BUNDLE', self::PLUGIN_SUPER_TOKEN_USE_BUNDLE);
+        $this->define('MP_SUPER_TOKEN_VERSION', self::PLUGIN_SUPER_TOKEN_VERSION);
         $this->define('MP_SDK_ENV', self::PLUGIN_SDK_ENV);
     }
 
